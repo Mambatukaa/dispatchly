@@ -1,0 +1,120 @@
+import { pool } from '../db';
+import { Driver, CreateDriverInput, UpdateDriverInput } from '../models/Driver';
+import { generateObjectId } from '../utils/objectId';
+import { DatabaseError, NotFoundError } from '../utils/errors';
+
+export async function getDrivers(): Promise<Driver[]> {
+  try {
+    const result = await pool.query(
+      'SELECT * FROM drivers ORDER BY created_at DESC'
+    );
+    return result.rows.map(rowToDriver);
+  } catch (err) {
+    throw new DatabaseError('Failed to fetch drivers');
+  }
+}
+
+export async function getDriverById(id: string): Promise<Driver | null> {
+  try {
+    const result = await pool.query('SELECT * FROM drivers WHERE id = $1', [
+      id
+    ]);
+    if (result.rows.length === 0) return null;
+    return rowToDriver(result.rows[0]);
+  } catch (err) {
+    throw new DatabaseError('Failed to fetch driver');
+  }
+}
+
+export async function createDriver(input: CreateDriverInput): Promise<Driver> {
+  try {
+    const id = generateObjectId();
+    const createdAt = new Date().toISOString();
+
+    const query = `
+      INSERT INTO drivers (id, name, phone, note, created_at)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING *
+    `;
+
+    const result = await pool.query(query, [
+      id,
+      input.name,
+      input.phone,
+      input.note || null,
+      createdAt
+    ]);
+
+    return rowToDriver(result.rows[0]);
+  } catch (err) {
+    throw new DatabaseError('Failed to create driver');
+  }
+}
+
+export async function updateDriver(
+  id: string,
+  input: UpdateDriverInput
+): Promise<Driver> {
+  try {
+    const driver = await getDriverById(id);
+    if (!driver) {
+      throw new NotFoundError('Driver not found');
+    }
+
+    // Map of input field names to database column names
+    const fieldMap: Record<keyof UpdateDriverInput, string> = {
+      name: 'name',
+      phone: 'phone',
+      note: 'note'
+    };
+
+    // Filter out undefined values and map to database columns
+    const updates = Object.entries(input)
+      .filter(([, value]) => value !== undefined)
+      .map(([key, value]) => ({
+        column: fieldMap[key as keyof UpdateDriverInput],
+        value
+      }));
+
+    if (updates.length === 0) return driver;
+
+    // Build SET clause with proper parameter placeholders
+    const setClause = updates
+      .map((_, i) => `${updates[i].column} = $${i + 1}`)
+      .join(', ');
+
+    const values = [...updates.map(u => u.value), id];
+    const query = `UPDATE drivers SET ${setClause} WHERE id = $${updates.length + 1} RETURNING *`;
+
+    const result = await pool.query(query, values);
+    return rowToDriver(result.rows[0]);
+  } catch (err) {
+    if (err instanceof NotFoundError) throw err;
+    throw new DatabaseError('Failed to update driver');
+  }
+}
+
+export async function deleteDriver(id: string): Promise<boolean> {
+  try {
+    const driver = await getDriverById(id);
+    if (!driver) {
+      throw new NotFoundError('Driver not found');
+    }
+
+    await pool.query('DELETE FROM drivers WHERE id = $1', [id]);
+    return true;
+  } catch (err) {
+    if (err instanceof NotFoundError) throw err;
+    throw new DatabaseError('Failed to delete driver');
+  }
+}
+
+function rowToDriver(row: any): Driver {
+  return {
+    id: row.id,
+    name: row.name,
+    phone: row.phone,
+    note: row.note,
+    createdAt: row.created_at
+  };
+}
