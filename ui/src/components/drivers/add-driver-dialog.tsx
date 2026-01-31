@@ -11,6 +11,7 @@ import { useState } from 'react'
 interface Driver {
   id?: string | number
   name: string
+  email?: string
   phone: string
   status: string
   avatar?: File | string
@@ -45,6 +46,7 @@ export function DriverDialog({
   const [formData, setFormData] = useState<Driver>(
     driver || {
       name: '',
+      email: '',
       phone: '',
       status: 'AVAILABLE',
       avatar: undefined,
@@ -79,6 +81,10 @@ export function DriverDialog({
       if (name === 'name' && errors.name) {
         setErrors((prev) => ({ ...prev, name: '' }))
       }
+      // Clear email error when user starts typing
+      if (name === 'email' && errors.email) {
+        setErrors((prev) => ({ ...prev, email: '' }))
+      }
     }
   }
 
@@ -112,6 +118,10 @@ export function DriverDialog({
       newErrors.name = 'Name is required'
     }
 
+    if (formData.email && !formData.email.match(/^\S+@\S+\.\S+$/)) {
+      newErrors.email = 'Please enter a valid email address'
+    }
+
     if (!formData.phone.trim()) {
       newErrors.phone = 'Phone is required'
     } else if (!validateUSPhone(formData.phone)) {
@@ -132,6 +142,7 @@ export function DriverDialog({
       // Reset form
       setFormData({
         name: '',
+        email: '',
         phone: '',
         status: 'AVAILABLE',
         avatar: undefined,
@@ -149,6 +160,7 @@ export function DriverDialog({
       setFormData(
         driver || {
           name: '',
+          email: '',
           phone: '',
           status: 'AVAILABLE',
           avatar: undefined,
@@ -198,6 +210,18 @@ export function DriverDialog({
               className={errors.name ? 'border-red-500' : ''}
             />
             {errors.name && <p className="text-sm text-red-500 mt-1">{errors.name}</p>}
+          </Field>
+          <Field>
+            <Label>Email</Label>
+            <Input
+              name="email"
+              type="email"
+              placeholder="john@example.com"
+              value={formData.email || ''}
+              onChange={handleChange}
+              className={errors.email ? 'border-red-500' : ''}
+            />
+            {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email}</p>}
           </Field>
           <Field>
             <Label>Phone *</Label>
