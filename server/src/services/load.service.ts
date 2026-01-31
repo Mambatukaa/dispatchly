@@ -1,5 +1,5 @@
 import { pool } from '../db';
-import { Load, CreateLoadInput, UpdateLoadInput } from '../models/Load';
+import { Load, LoadInput } from '../models/Load';
 import { generateObjectId } from '../utils/objectId';
 import { DatabaseError, NotFoundError } from '../utils/errors';
 
@@ -36,26 +36,27 @@ export async function getLoadsByDriver(driverId: string): Promise<Load[]> {
   }
 }
 
-export async function createLoad(input: CreateLoadInput): Promise<Load> {
+export async function createLoad(input: LoadInput): Promise<Load> {
   try {
     const id = generateObjectId();
+    const ref = input.ref || `LOAD-${Date.now()}`;
+    const pickupDate = input.pickupDate || new Date().toISOString();
 
     const query = `
-      INSERT INTO loads (id, ref, status, driver_id, pickup, dropoff, pickup_date, rate, broker_name, shipper_name, notes)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+      INSERT INTO loads (id, ref, status, driver_id, pickup, dropoff, pickup_date, rate, shipper_name, notes)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
       RETURNING *
     `;
 
     const result = await pool.query(query, [
       id,
-      input.ref,
+      ref,
       input.status || 'NEW',
-      input.driverId || null,
+      input.driverId,
       input.pickup,
       input.dropoff,
-      input.pickupDate,
+      pickupDate,
       input.rate || null,
-      input.brokerName || null,
       input.shipperName || null,
       input.notes || null
     ]);
@@ -66,10 +67,7 @@ export async function createLoad(input: CreateLoadInput): Promise<Load> {
   }
 }
 
-export async function updateLoad(
-  id: string,
-  input: UpdateLoadInput
-): Promise<Load> {
+export async function updateLoad(id: string, input: LoadInput): Promise<Load> {
   try {
     const load = await getLoadById(id);
     if (!load) {
@@ -113,11 +111,6 @@ export async function updateLoad(
     if (input.rate !== undefined) {
       updates.push(`rate = $${paramCount}`);
       values.push(input.rate);
-      paramCount++;
-    }
-    if (input.brokerName !== undefined) {
-      updates.push(`broker_name = $${paramCount}`);
-      values.push(input.brokerName);
       paramCount++;
     }
     if (input.shipperName !== undefined) {
@@ -170,7 +163,6 @@ function rowToLoad(row: any): Load {
     dropoff: row.dropoff,
     pickupDate: row.pickup_date,
     rate: row.rate,
-    brokerName: row.broker_name,
     shipperName: row.shipper_name,
     notes: row.notes
   };

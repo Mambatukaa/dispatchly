@@ -13,14 +13,14 @@ async function dropDatabase() {
   const client = await pool.connect();
   try {
     console.log('🔄 Dropping existing tables...');
-    
+
     // Drop tables in correct order (loads first due to foreign key)
     await client.query('DROP TABLE IF EXISTS loads CASCADE');
     console.log('✅ Dropped loads table');
-    
+
     await client.query('DROP TABLE IF EXISTS drivers CASCADE');
     console.log('✅ Dropped drivers table');
-    
+
     console.log('✅ All tables dropped successfully');
   } catch (error) {
     console.error('❌ Failed to drop tables:', error);

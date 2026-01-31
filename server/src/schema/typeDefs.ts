@@ -38,7 +38,6 @@ export const typeDefs = gql`
     dropoff: String!
     pickupDate: String!
     rate: Float
-    brokerName: String
     shipperName: String
     notes: String
   }
@@ -51,30 +50,16 @@ export const typeDefs = gql`
     avatar: String
   }
 
-  input CreateLoadInput {
-    ref: String!
+  input LoadInput {
+    driverId: ID!
     pickup: String!
     dropoff: String!
-    pickupDate: String!
-    driverId: ID
-    rate: Float
-    brokerName: String
-    shipperName: String
-    notes: String
-    status: LoadStatus
-  }
-
-  input UpdateLoadInput {
     ref: String
-    status: LoadStatus
-    driverId: ID
-    pickup: String
-    dropoff: String
     pickupDate: String
     rate: Float
     brokerName: String
-    shipperName: String
     notes: String
+    status: LoadStatus
   }
 
   type Query {
@@ -90,8 +75,8 @@ export const typeDefs = gql`
     updateDriver(id: ID!, input: DriverInput!): Driver!
     deleteDriver(id: ID!): Boolean!
 
-    createLoad(input: CreateLoadInput!): Load!
-    updateLoad(id: ID!, input: UpdateLoadInput!): Load!
+    createLoad(input: LoadInput!): Load!
+    updateLoad(id: ID!, input: LoadInput!): Load!
     deleteLoad(id: ID!): Boolean!
   }
 `;
