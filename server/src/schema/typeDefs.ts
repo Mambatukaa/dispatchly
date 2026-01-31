@@ -11,7 +11,8 @@ export const typeDefs = gql`
     id: ID!
     name: String!
     phone: String!
-    note: String
+    status: DriverStatus!
+    avatar: String!
     createdAt: String!
   }
 
@@ -44,13 +45,15 @@ export const typeDefs = gql`
   input CreateDriverInput {
     name: String!
     phone: String!
-    note: String
+    status: DriverStatus
+    avatar: String
   }
 
   input UpdateDriverInput {
     name: String
     phone: String
-    note: String
+    status: DriverStatus
+    avatar: String
   }
 
   input CreateLoadInput {

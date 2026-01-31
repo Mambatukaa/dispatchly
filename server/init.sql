@@ -2,11 +2,9 @@ CREATE TABLE drivers
 (
   id VARCHAR(24) PRIMARY KEY,
   name VARCHAR(255) NOT NULL,
-  phone VARCHAR(20),
-  truck_number VARCHAR(100),
-  trailer_type VARCHAR(100),
+  phone VARCHAR(20) NOT NULL,
   status VARCHAR(50) DEFAULT 'AVAILABLE',
-  notes TEXT,
+  avatar TEXT,
   created_at TIMESTAMP DEFAULT NOW()
 );
 

@@ -805,6 +805,7 @@ export async function getDrivers() {
       ratingChange: '+0.2',
       status: 'Active',
       imgUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=James',
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=James',
       thumbUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=James&scale=80',
     },
     {
@@ -821,6 +822,7 @@ export async function getDrivers() {
       ratingChange: '+0.3',
       status: 'Active',
       imgUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Maria',
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Maria',
       thumbUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Maria&scale=80',
     },
     {
@@ -837,6 +839,7 @@ export async function getDrivers() {
       ratingChange: '+0.1',
       status: 'Active',
       imgUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Robert',
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Robert',
       thumbUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Robert&scale=80',
     },
     {
@@ -853,6 +856,7 @@ export async function getDrivers() {
       ratingChange: '-0.2',
       status: 'Inactive',
       imgUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Patricia',
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Patricia',
       thumbUrl: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Patricia&scale=80',
     },
   ]

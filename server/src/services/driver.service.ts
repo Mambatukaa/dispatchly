@@ -30,10 +30,14 @@ export async function createDriver(input: CreateDriverInput): Promise<Driver> {
   try {
     const id = generateObjectId();
     const createdAt = new Date().toISOString();
+    const status = input.status || 'AVAILABLE';
+    const avatar =
+      input.avatar ||
+      `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(input.name)}`;
 
     const query = `
-      INSERT INTO drivers (id, name, phone, note, created_at)
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO drivers (id, name, phone, status, avatar, created_at)
+      VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *
     `;
 
@@ -41,7 +45,8 @@ export async function createDriver(input: CreateDriverInput): Promise<Driver> {
       id,
       input.name,
       input.phone,
-      input.note || null,
+      status,
+      avatar,
       createdAt
     ]);
 
@@ -65,7 +70,8 @@ export async function updateDriver(
     const fieldMap: Record<keyof UpdateDriverInput, string> = {
       name: 'name',
       phone: 'phone',
-      note: 'note'
+      status: 'status',
+      avatar: 'avatar'
     };
 
     // Filter out undefined values and map to database columns
@@ -114,7 +120,8 @@ function rowToDriver(row: any): Driver {
     id: row.id,
     name: row.name,
     phone: row.phone,
-    note: row.note,
+    status: row.status,
+    avatar: row.avatar,
     createdAt: row.created_at
   };
 }

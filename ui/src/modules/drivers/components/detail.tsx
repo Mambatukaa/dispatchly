@@ -13,21 +13,21 @@ import { useState } from 'react'
 interface Driver {
   id: string | number
   name: string
-  email: string
+  email?: string
   phone: string
   status: string
-  imgUrl: string
-  totalEarnings: string
-  totalEarningsChange: string
-  ridesCompleted: number
-  ridesCompletedChange: string
-  rating: string
-  ratingChange: string
+  imgUrl?: string
+  totalEarnings?: string
+  totalEarningsChange?: string
+  ridesCompleted?: number
+  ridesCompletedChange?: string
+  rating?: string
+  ratingChange?: string
 }
 
 interface Ride {
   id: string | number
-  url: string
+  url?: string
   date: string
   passenger: { name: string }
   earnings: string
@@ -42,9 +42,8 @@ export function DriverDetail({ driver, rides }: DriverDetailProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   const handleEditDriver = async (data: any) => {
-    // Handle driver update
     console.log('Updating driver:', data)
-    // You can add API call here
+    setIsDialogOpen(false)
   }
 
   return (
@@ -58,29 +57,46 @@ export function DriverDetail({ driver, rides }: DriverDetailProps) {
       <div className="mt-4 flex flex-wrap items-end justify-between gap-4">
         <div className="flex flex-wrap items-center gap-6">
           <div className="w-32 shrink-0">
-            <img className="aspect-3/2 rounded-lg shadow-sm" src={driver.imgUrl} alt="" />
+            <img
+              className="aspect-3/2 rounded-lg shadow-sm"
+              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(driver.name)}`}
+              alt=""
+            />
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               <Heading>{driver.name}</Heading>
-              <Badge color={driver.status === 'Active' ? 'lime' : 'zinc'}>{driver.status}</Badge>
+              <Badge
+                color={driver.status === 'AVAILABLE' || driver.status === 'Active' ? 'lime' : driver.status === 'ON_LOAD' ? 'blue' : 'zinc'}
+              >
+                {driver.status === 'AVAILABLE' || driver.status === 'Active' ? 'Available' : driver.status === 'ON_LOAD' ? 'On Load' : 'Offline'}
+              </Badge>
             </div>
             <div className="mt-2 text-sm/6 text-zinc-500">
-              {driver.email} <span aria-hidden="true">·</span> {driver.phone}
+              {driver.email && (
+                <>
+                  {driver.email} <span aria-hidden="true">·</span>{' '}
+                </>
+              )}
+              {driver.phone}
             </div>
           </div>
         </div>
         <div className="flex gap-4">
-          <Button outline onClick={() => setIsDialogOpen(true)} className="cursor-pointer">
+          <Button outline onClick={() => setIsDialogOpen(true)}>
             Edit
           </Button>
           <Button>View</Button>
         </div>
       </div>
       <div className="mt-8 grid gap-8 sm:grid-cols-3">
-        <Stat title="Total earnings" value={driver.totalEarnings} change={driver.totalEarningsChange} />
-        <Stat title="Rides completed" value={`${driver.ridesCompleted}`} change={driver.ridesCompletedChange} />
-        <Stat title="Average rating" value={driver.rating} change={driver.ratingChange} />
+        <Stat title="Total earnings" value={driver.totalEarnings || '$0.00'} change={driver.totalEarningsChange || '+0%'} />
+        <Stat
+          title="Rides completed"
+          value={`${driver.ridesCompleted || 0}`}
+          change={driver.ridesCompletedChange || '+0%'}
+        />
+        <Stat title="Average rating" value={driver.rating || '0.0'} change={driver.ratingChange || '+0'} />
       </div>
       <Subheading className="mt-12">Recent rides</Subheading>
       <Table className="mt-4 [--gutter:--spacing(6)] lg:[--gutter:--spacing(10)]">
