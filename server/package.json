@@ -5,6 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "dev": "nodemon --exec ts-node src/index.ts",
+    "migrate": "ts-node src/migrate.ts",
+    "drop": "ts-node src/dropTables.ts",
     "build": "tsc",
     "start": "node dist/index.js"
   },

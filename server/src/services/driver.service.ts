@@ -1,5 +1,5 @@
 import { pool } from '../db';
-import { Driver, CreateDriverInput, UpdateDriverInput } from '../models/Driver';
+import { Driver, DriverInput } from '../models/Driver';
 import { generateObjectId } from '../utils/objectId';
 import { DatabaseError, NotFoundError } from '../utils/errors';
 
@@ -26,7 +26,7 @@ export async function getDriverById(id: string): Promise<Driver | null> {
   }
 }
 
-export async function createDriver(input: CreateDriverInput): Promise<Driver> {
+export async function createDriver(input: DriverInput): Promise<Driver> {
   try {
     const id = generateObjectId();
     const createdAt = new Date().toISOString();
@@ -34,10 +34,11 @@ export async function createDriver(input: CreateDriverInput): Promise<Driver> {
     const avatar =
       input.avatar ||
       `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(input.name)}`;
+    const email = input.email || null;
 
     const query = `
-      INSERT INTO drivers (id, name, phone, status, avatar, created_at)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO drivers (id, name, phone, email, status, avatar, created_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *
     `;
 
@@ -45,6 +46,7 @@ export async function createDriver(input: CreateDriverInput): Promise<Driver> {
       id,
       input.name,
       input.phone,
+      email,
       status,
       avatar,
       createdAt
@@ -52,13 +54,14 @@ export async function createDriver(input: CreateDriverInput): Promise<Driver> {
 
     return rowToDriver(result.rows[0]);
   } catch (err) {
+    console.error('Error creating driver:', err);
     throw new DatabaseError('Failed to create driver');
   }
 }
 
 export async function updateDriver(
   id: string,
-  input: UpdateDriverInput
+  input: DriverInput
 ): Promise<Driver> {
   try {
     const driver = await getDriverById(id);
@@ -67,9 +70,10 @@ export async function updateDriver(
     }
 
     // Map of input field names to database column names
-    const fieldMap: Record<keyof UpdateDriverInput, string> = {
+    const fieldMap: Record<keyof DriverInput, string> = {
       name: 'name',
       phone: 'phone',
+      email: 'email',
       status: 'status',
       avatar: 'avatar'
     };
@@ -78,7 +82,7 @@ export async function updateDriver(
     const updates = Object.entries(input)
       .filter(([, value]) => value !== undefined)
       .map(([key, value]) => ({
-        column: fieldMap[key as keyof UpdateDriverInput],
+        column: fieldMap[key as keyof DriverInput],
         value
       }));
 
@@ -120,6 +124,7 @@ function rowToDriver(row: any): Driver {
     id: row.id,
     name: row.name,
     phone: row.phone,
+    email: row.email,
     status: row.status,
     avatar: row.avatar,
     createdAt: row.created_at

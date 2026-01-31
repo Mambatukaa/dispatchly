@@ -86,7 +86,6 @@ export function DriverDetail({ driver, rides }: DriverDetailProps) {
           <Button outline onClick={() => setIsDialogOpen(true)}>
             Edit
           </Button>
-          <Button>View</Button>
         </div>
       </div>
       <div className="mt-8 grid gap-8 sm:grid-cols-3">

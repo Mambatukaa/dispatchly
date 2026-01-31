@@ -11,6 +11,7 @@ export const typeDefs = gql`
     id: ID!
     name: String!
     phone: String!
+    email: String
     status: DriverStatus!
     avatar: String!
     createdAt: String!
@@ -42,16 +43,10 @@ export const typeDefs = gql`
     notes: String
   }
 
-  input CreateDriverInput {
+  input DriverInput {
     name: String!
     phone: String!
-    status: DriverStatus
-    avatar: String
-  }
-
-  input UpdateDriverInput {
-    name: String
-    phone: String
+    email: String
     status: DriverStatus
     avatar: String
   }
@@ -91,8 +86,8 @@ export const typeDefs = gql`
   }
 
   type Mutation {
-    createDriver(input: CreateDriverInput!): Driver!
-    updateDriver(id: ID!, input: UpdateDriverInput!): Driver!
+    createDriver(input: DriverInput!): Driver!
+    updateDriver(id: ID!, input: DriverInput!): Driver!
     deleteDriver(id: ID!): Boolean!
 
     createLoad(input: CreateLoadInput!): Load!

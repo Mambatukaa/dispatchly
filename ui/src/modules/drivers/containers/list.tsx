@@ -35,6 +35,7 @@ export default function DriversContainer({ initialDrivers }: DriversContainerPro
         const result = await updateDriver(selectedDriver.id, {
           name: formData.name,
           phone: formData.phone,
+          email: formData.email,
           status: formData.status || 'AVAILABLE',
           avatar: avatarUrl,
         })
@@ -46,6 +47,7 @@ export default function DriversContainer({ initialDrivers }: DriversContainerPro
         const result = await createDriver({
           name: formData.name,
           phone: formData.phone,
+          email: formData.email,
           status: formData.status || 'AVAILABLE',
           avatar: avatarUrl,
         })

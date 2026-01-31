@@ -5,6 +5,7 @@ export const GET_DRIVERS = gql`
     drivers {
       id
       name
+      email
       phone
       status
     }
@@ -16,6 +17,7 @@ export const GET_DRIVER = gql`
     driver(id: $id) {
       id
       name
+      email
       phone
       status
       createdAt

@@ -11,16 +11,10 @@ export interface Driver {
   createdAt: string
 }
 
-export interface CreateDriverInput {
+export interface DriverInput {
   name: string
   phone: string
-  status?: DriverStatus
-  avatar?: string
-}
-
-export interface UpdateDriverInput {
-  name?: string
-  phone?: string
+  email: string
   status?: DriverStatus
   avatar?: string
 }

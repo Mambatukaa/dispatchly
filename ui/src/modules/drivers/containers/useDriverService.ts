@@ -1,6 +1,6 @@
 'use client'
 
-import { CreateDriverInput, UpdateDriverInput } from '../types'
+import { DriverInput } from '../types'
 import { useCreateDriver, useDeleteDriver, useUpdateDriver } from './useDrivers'
 
 export const useDriverService = () => {
@@ -8,13 +8,14 @@ export const useDriverService = () => {
   const [updateDriver, updateDriverState] = useUpdateDriver('')
   const [deleteDriver, deleteDriverState] = useDeleteDriver()
 
-  const handleCreateDriver = async (input: CreateDriverInput) => {
+  const handleCreateDriver = async (input: DriverInput) => {
     try {
       const result = await createDriver({
         variables: {
           input: {
             name: input.name,
             phone: input.phone,
+            email: input.email,
             status: input.status,
             avatar: input.avatar,
           },
@@ -26,7 +27,7 @@ export const useDriverService = () => {
     }
   }
 
-  const handleUpdateDriver = async (id: string | number, input: UpdateDriverInput) => {
+  const handleUpdateDriver = async (id: string | number, input: DriverInput) => {
     try {
       const result = await updateDriver({
         variables: {
@@ -34,6 +35,7 @@ export const useDriverService = () => {
           input: {
             name: input.name,
             phone: input.phone,
+            email: input.email,
             status: input.status,
             avatar: input.avatar,
           },
