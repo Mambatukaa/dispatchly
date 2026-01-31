@@ -1071,3 +1071,58 @@ export function getCountries() {
     },
   ]
 }
+
+export async function getLoads() {
+  return [
+    {
+      id: '2000',
+      ref: 'LOAD-001',
+      url: '/loads/2000',
+      date: 'Jan 28, 2026',
+      pickup: 'Toronto, ON',
+      dropoff: 'Montreal, QC',
+      driver: 'John Smith',
+      status: 'DELIVERED',
+    },
+    {
+      id: '2001',
+      ref: 'LOAD-002',
+      url: '/loads/2001',
+      date: 'Jan 29, 2026',
+      pickup: 'Vancouver, BC',
+      dropoff: 'Calgary, AB',
+      driver: 'Sarah Johnson',
+      status: 'DISPATCHED',
+    },
+    {
+      id: '2002',
+      ref: 'LOAD-003',
+      url: '/loads/2002',
+      date: 'Jan 30, 2026',
+      pickup: 'Winnipeg, MB',
+      dropoff: 'Toronto, ON',
+      driver: 'Mike Davis',
+      status: 'NEW',
+    },
+    {
+      id: '2003',
+      ref: 'LOAD-004',
+      url: '/loads/2003',
+      date: 'Jan 30, 2026',
+      pickup: 'Edmonton, AB',
+      dropoff: 'Vancouver, BC',
+      driver: 'Emma Wilson',
+      status: 'PICKED_UP',
+    },
+    {
+      id: '2004',
+      ref: 'LOAD-005',
+      url: '/loads/2004',
+      date: 'Jan 31, 2026',
+      pickup: 'Halifax, NS',
+      dropoff: 'Montreal, QC',
+      driver: 'James Brown',
+      status: 'BOOKED',
+    },
+  ]
+}
