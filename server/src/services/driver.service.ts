@@ -80,7 +80,7 @@ export async function updateDriver(
 
     // Filter out undefined values and map to database columns
     const updates = Object.entries(input)
-      .filter(([, value]) => value !== undefined)
+      .filter(([, value]) => value !== undefined && value !== '')
       .map(([key, value]) => ({
         column: fieldMap[key as keyof DriverInput],
         value

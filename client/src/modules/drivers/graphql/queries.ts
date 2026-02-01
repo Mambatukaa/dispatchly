@@ -35,7 +35,6 @@ export const GET_DRIVER_LOADS = gql`
       dropoff
       pickupDate
       rate
-      brokerName
       shipperName
     }
   }

@@ -34,11 +34,11 @@ IF NOT EXISTS loads
   pickup_date TIMESTAMP NOT NULL,
   rate DECIMAL
 (10, 2),
-  broker_name VARCHAR
-(255),
   shipper_name VARCHAR
 (255),
   notes TEXT,
+  created_at TIMESTAMP DEFAULT NOW
+(),
   FOREIGN KEY
 (driver_id) REFERENCES drivers
 (id)

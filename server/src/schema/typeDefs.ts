@@ -51,13 +51,13 @@ export const typeDefs = gql`
   }
 
   input LoadInput {
-    driverId: ID!
-    pickup: String!
-    dropoff: String!
+    driverId: ID
+    pickup: String
+    dropoff: String
     ref: String
     pickupDate: String
     rate: Float
-    brokerName: String
+    shipperName: String
     notes: String
     status: LoadStatus
   }

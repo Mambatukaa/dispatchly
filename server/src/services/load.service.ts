@@ -10,6 +10,7 @@ export async function getLoads(): Promise<Load[]> {
     );
     return result.rows.map(rowToLoad);
   } catch (err) {
+    console.log(err);
     throw new DatabaseError('Failed to fetch loads');
   }
 }
@@ -43,8 +44,8 @@ export async function createLoad(input: LoadInput): Promise<Load> {
     const pickupDate = input.pickupDate || new Date().toISOString();
 
     const query = `
-      INSERT INTO loads (id, ref, status, driver_id, pickup, dropoff, pickup_date, rate, shipper_name, notes)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+      INSERT INTO loads (id, ref, status, driver_id, pickup, dropoff, pickup_date, rate, shipper_name, notes, created_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP)
       RETURNING *
     `;
 
@@ -63,6 +64,7 @@ export async function createLoad(input: LoadInput): Promise<Load> {
 
     return rowToLoad(result.rows[0]);
   } catch (err) {
+    console.log('Error creating load:', err);
     throw new DatabaseError('Failed to create load');
   }
 }
@@ -74,65 +76,42 @@ export async function updateLoad(id: string, input: LoadInput): Promise<Load> {
       throw new NotFoundError('Load not found');
     }
 
-    const updates: string[] = [];
-    const values: any[] = [];
-    let paramCount = 1;
+    // Map of input field names to database column names
+    const fieldMap: Record<keyof LoadInput, string> = {
+      driverId: 'driver_id',
+      pickup: 'pickup',
+      dropoff: 'dropoff',
+      ref: 'ref',
+      pickupDate: 'pickup_date',
+      rate: 'rate',
+      shipperName: 'shipper_name',
+      notes: 'notes',
+      status: 'status'
+    };
 
-    if (input.ref !== undefined) {
-      updates.push(`ref = $${paramCount}`);
-      values.push(input.ref);
-      paramCount++;
-    }
-    if (input.status !== undefined) {
-      updates.push(`status = $${paramCount}`);
-      values.push(input.status);
-      paramCount++;
-    }
-    if (input.driverId !== undefined) {
-      updates.push(`driver_id = $${paramCount}`);
-      values.push(input.driverId);
-      paramCount++;
-    }
-    if (input.pickup !== undefined) {
-      updates.push(`pickup = $${paramCount}`);
-      values.push(input.pickup);
-      paramCount++;
-    }
-    if (input.dropoff !== undefined) {
-      updates.push(`dropoff = $${paramCount}`);
-      values.push(input.dropoff);
-      paramCount++;
-    }
-    if (input.pickupDate !== undefined) {
-      updates.push(`pickup_date = $${paramCount}`);
-      values.push(input.pickupDate);
-      paramCount++;
-    }
-    if (input.rate !== undefined) {
-      updates.push(`rate = $${paramCount}`);
-      values.push(input.rate);
-      paramCount++;
-    }
-    if (input.shipperName !== undefined) {
-      updates.push(`shipper_name = $${paramCount}`);
-      values.push(input.shipperName);
-      paramCount++;
-    }
-    if (input.notes !== undefined) {
-      updates.push(`notes = $${paramCount}`);
-      values.push(input.notes);
-      paramCount++;
-    }
+    // Filter out undefined values and map to database columns
+    const updates = Object.entries(input)
+      .filter(([, value]) => value !== undefined && value !== '')
+      .map(([key, value]) => ({
+        column: fieldMap[key as keyof LoadInput],
+        value
+      }));
 
     if (updates.length === 0) return load;
 
-    values.push(id);
+    // Build SET clause with proper parameter placeholders
+    const setClause = updates
+      .map((_, i) => `${updates[i].column} = $${i + 1}`)
+      .join(', ');
 
-    const query = `UPDATE loads SET ${updates.join(', ')} WHERE id = $${paramCount + 1} RETURNING *`;
+    const values = [...updates.map(u => u.value), id];
+    const query = `UPDATE loads SET ${setClause} WHERE id = $${updates.length + 1} RETURNING *`;
+
     const result = await pool.query(query, values);
 
     return rowToLoad(result.rows[0]);
   } catch (err) {
+    console.error('Error updating load:', err);
     if (err instanceof NotFoundError) throw err;
     throw new DatabaseError('Failed to update load');
   }
