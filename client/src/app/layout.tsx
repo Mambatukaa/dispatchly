@@ -4,8 +4,8 @@ import { Providers } from '@/components/providers/apollo-provider'
 
 export const metadata: Metadata = {
   title: {
-    template: '%s - Catalyst',
-    default: 'Catalyst',
+    template: '%s - Dispatchly',
+    default: 'Dispatchly',
   },
   description: '',
 }
