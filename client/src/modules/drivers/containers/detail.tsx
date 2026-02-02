@@ -1,55 +1,56 @@
 'use client'
 
-import { DriverDetail } from '../components/detail'
-import { useParams } from 'next/navigation'
-import { useGetDriver, useGetDriverLoads } from './useDrivers'
-
-interface Driver {
-  id: string | number
-  name: string
-  email?: string
-  phone: string
-  status: string
-  imgUrl?: string
-  totalEarnings?: string
-  totalEarningsChange?: string
-  ridesCompleted?: number
-  ridesCompletedChange?: string
-  rating?: string
-  ratingChange?: string
-}
-
-interface Ride {
-  id: string | number
-  url?: string
-  date: string
-  passenger: { name: string }
-  earnings: string
-}
+import React from 'react'
+import { useRouter, useParams } from 'next/navigation'
+import { useGetDrivers } from './useDrivers'
+import { useDriverService } from './useDriverService'
+import DriverDetail from '../components/detail'
 
 export default function DriverDetailContainer() {
+  const router = useRouter()
   const params = useParams()
-  const id = params.id as string
+  const driverId = params?.id as string
 
-  const { data: driverData, loading: driverLoading, error: driverError } = useGetDriver(id)
-  const { data: ridesData, loading: ridesLoading } = useGetDriverLoads(id)
+  const { data } = useGetDrivers()
+  const { updateDriver } = useDriverService()
 
-  const loading = driverLoading || ridesLoading
-  const error = driverError
-  const driver = driverData?.driver as Driver | null
-  const rides = (ridesData?.driverLoads || []) as Ride[]
+  const drivers = (data as any)?.drivers || []
+  const driver = drivers.find((d: any) => d.id === driverId || d.id === parseInt(driverId))
 
-  if (loading) {
-    return <div className="text-center py-10">Loading...</div>
-  }
+  const handleEditDriver = async (formData: any) => {
+    const result = await updateDriver(driverId, {
+      name: formData.name,
+      phone: formData.phone,
+      email: formData.email,
+      status: formData.status || 'AVAILABLE',
+      avatar: formData.avatar,
+    })
 
-  if (error) {
-    return <div className="text-center py-10 text-red-600">Error: {error.message}</div>
+    if (!result.success) {
+      alert(`Error updating driver: ${result.error}`)
+    }
   }
 
   if (!driver) {
-    return <div className="text-center py-10 text-red-600">Driver not found</div>
+    return (
+      <div className="p-8 text-center">
+        <p className="text-gray-500">Driver not found</p>
+        <button
+          onClick={() => router.push('/drivers')}
+          className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+        >
+          Back to Drivers
+        </button>
+      </div>
+    )
   }
 
-  return <DriverDetail driver={driver} rides={rides} />
+  // Mock loads data - replace with actual GraphQL query when available
+  const mockLoads = [
+    { id: '1', ref: 'LD-001', pickup: 'New York, NY', dropoff: 'Boston, MA', status: 'DELIVERED', pickupDate: '2024-01-15' },
+    { id: '2', ref: 'LD-002', pickup: 'Boston, MA', dropoff: 'Philadelphia, PA', status: 'ON_LOAD', pickupDate: '2024-01-16' },
+    { id: '3', ref: 'LD-003', pickup: 'Philadelphia, PA', dropoff: 'Washington, DC', status: 'NEW', pickupDate: '2024-01-17' },
+  ]
+
+  return <DriverDetail driver={driver} loads={mockLoads} onEditDriver={handleEditDriver} />
 }

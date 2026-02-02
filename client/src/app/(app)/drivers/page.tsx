@@ -1,13 +1,10 @@
-import DriversContainer from '@/modules/drivers/containers/list'
-import { getDrivers } from '@/data'
+import { Drivers as DriversContainer } from '@/modules/drivers/containers'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Drivers',
 }
 
-export default async function Drivers() {
-  let drivers = await getDrivers()
-
-  return <DriversContainer initialDrivers={drivers} />
+export default function Drivers() {
+  return <DriversContainer />
 }

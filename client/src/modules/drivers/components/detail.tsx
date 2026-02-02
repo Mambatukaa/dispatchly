@@ -1,49 +1,70 @@
 'use client'
 
+import { useState } from 'react'
+import Link from 'next/link'
 import { Stat } from '@/app/stat'
 import { Badge } from '@/components/badge'
 import { Button } from '@/components/button'
 import { Heading, Subheading } from '@/components/heading'
-import { Link } from '@/components/link'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table'
-import { DriverDialog } from '@/components/drivers/add-driver-dialog'
+import { Dialog } from '@/components/dialog'
 import { ChevronLeftIcon } from '@heroicons/react/16/solid'
-import { useState } from 'react'
+import DriverForm from './DriverForm'
+import type { Driver } from '../types'
 
-interface Driver {
+interface Load {
   id: string | number
-  name: string
-  email?: string
-  phone: string
-  status: string
-  imgUrl?: string
-  totalEarnings?: string
-  totalEarningsChange?: string
-  ridesCompleted?: number
-  ridesCompletedChange?: string
-  rating?: string
-  ratingChange?: string
-}
-
-interface Ride {
-  id: string | number
-  url?: string
-  date: string
-  passenger: { name: string }
-  earnings: string
+  ref?: string
+  pickup: string
+  dropoff: string
+  status?: string
+  pickupDate?: string
 }
 
 interface DriverDetailProps {
   driver: Driver
-  rides: Ride[]
+  loads: Load[]
+  onEditDriver: (data: any) => Promise<void>
 }
 
-export function DriverDetail({ driver, rides }: DriverDetailProps) {
+export default function DriverDetail({ driver, loads, onEditDriver }: DriverDetailProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleEditDriver = async (data: any) => {
-    console.log('Updating driver:', data)
-    setIsDialogOpen(false)
+    setIsSubmitting(true)
+    try {
+      await onEditDriver(data)
+      setIsDialogOpen(false)
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'AVAILABLE':
+        return 'lime'
+      case 'ON_LOAD':
+        return 'blue'
+      case 'OFF_DUTY':
+        return 'zinc'
+      default:
+        return 'zinc'
+    }
+  }
+
+  const getLoadStatusColor = (status: string) => {
+    switch (status) {
+      case 'NEW':
+        return 'yellow'
+      case 'DELIVERED':
+        return 'green'
+      case 'DISPATCHED':
+        return 'blue'
+      default:
+        return 'zinc'
+    }
   }
 
   return (
@@ -58,18 +79,16 @@ export function DriverDetail({ driver, rides }: DriverDetailProps) {
         <div className="flex flex-wrap items-center gap-6">
           <div className="w-32 shrink-0">
             <img
-              className="aspect-3/2 rounded-lg shadow-sm"
+              className="aspect-square rounded-lg shadow-sm"
               src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(driver.name)}`}
-              alt=""
+              alt={driver.name}
             />
           </div>
           <div>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               <Heading>{driver.name}</Heading>
-              <Badge
-                color={driver.status === 'AVAILABLE' || driver.status === 'Active' ? 'lime' : driver.status === 'ON_LOAD' ? 'blue' : 'zinc'}
-              >
-                {driver.status === 'AVAILABLE' || driver.status === 'Active' ? 'Available' : driver.status === 'ON_LOAD' ? 'On Load' : 'Offline'}
+              <Badge color={getStatusColor(driver.status)}>
+                {driver.status === 'AVAILABLE' ? 'Available' : driver.status === 'ON_LOAD' ? 'On Load' : 'Off Duty'}
               </Badge>
             </div>
             <div className="mt-2 text-sm/6 text-zinc-500">
@@ -89,41 +108,52 @@ export function DriverDetail({ driver, rides }: DriverDetailProps) {
         </div>
       </div>
       <div className="mt-8 grid gap-8 sm:grid-cols-3">
-        <Stat title="Total earnings" value={driver.totalEarnings || '$0.00'} change={driver.totalEarningsChange || '+0%'} />
-        <Stat
-          title="Rides completed"
-          value={`${driver.ridesCompleted || 0}`}
-          change={driver.ridesCompletedChange || '+0%'}
-        />
-        <Stat title="Average rating" value={driver.rating || '0.0'} change={driver.ratingChange || '+0'} />
+        <Stat title="Total loads" value={loads.length.toString()} change="+0%" />
+        <Stat title="Completed loads" value={loads.filter((l) => l.status === 'DELIVERED').length.toString()} change="+0%" />
+        <Stat title="Active loads" value={loads.filter((l) => l.status === 'ON_LOAD' || l.status === 'DISPATCHED').length.toString()} change="+0%" />
       </div>
-      <Subheading className="mt-12">Recent rides</Subheading>
+      <Subheading className="mt-12">Recent loads</Subheading>
       <Table className="mt-4 [--gutter:--spacing(6)] lg:[--gutter:--spacing(10)]">
         <TableHead>
           <TableRow>
-            <TableHeader>Ride ID</TableHeader>
+            <TableHeader>Reference</TableHeader>
+            <TableHeader>Pickup</TableHeader>
+            <TableHeader>Dropoff</TableHeader>
             <TableHeader>Date</TableHeader>
-            <TableHeader>Passenger</TableHeader>
-            <TableHeader className="text-right">Earnings</TableHeader>
+            <TableHeader>Status</TableHeader>
           </TableRow>
         </TableHead>
         <TableBody>
-          {rides.map((ride) => (
-            <TableRow key={ride.id} href={ride.url} title={`Ride #${ride.id}`}>
-              <TableCell>{ride.id}</TableCell>
-              <TableCell className="text-zinc-500">{ride.date}</TableCell>
-              <TableCell>{ride.passenger.name}</TableCell>
-              <TableCell className="text-right">${ride.earnings}</TableCell>
+          {loads.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={5} className="text-center py-8 text-zinc-500">
+                No loads found
+              </TableCell>
             </TableRow>
-          ))}
+          ) : (
+            loads.map((load) => (
+              <TableRow key={load.id}>
+                <TableCell className="font-semibold">{load.ref || '—'}</TableCell>
+                <TableCell>{load.pickup}</TableCell>
+                <TableCell>{load.dropoff}</TableCell>
+                <TableCell className="text-zinc-500">{load.pickupDate || '—'}</TableCell>
+                <TableCell>
+                  <Badge color={getLoadStatusColor(load.status || 'NEW')}>
+                    {load.status || 'NEW'}
+                  </Badge>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
-      <DriverDialog
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        driver={driver}
-        onSubmit={handleEditDriver}
-      />
+
+      {/* Edit Dialog */}
+      <Dialog open={isDialogOpen} onClose={() => setIsDialogOpen(false)}>
+        <h2 className="text-lg font-semibold text-gray-900 mb-1">Edit Driver</h2>
+        <p className="text-sm text-gray-600 mb-4">Update driver information</p>
+        <DriverForm driver={driver} onSubmit={handleEditDriver} onCancel={() => setIsDialogOpen(false)} />
+      </Dialog>
     </>
   )
 }

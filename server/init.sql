@@ -1,3 +1,6 @@
+DROP TABLE IF EXISTS loads;
+DROP TABLE IF EXISTS drivers;
+
 CREATE TABLE
 IF NOT EXISTS drivers
 (
@@ -41,5 +44,6 @@ IF NOT EXISTS loads
 (),
   FOREIGN KEY
 (driver_id) REFERENCES drivers
-(id)
+(id) ON
+DELETE CASCADE
 );

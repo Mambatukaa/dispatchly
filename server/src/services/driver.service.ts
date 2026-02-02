@@ -106,15 +106,9 @@ export async function updateDriver(
 
 export async function deleteDriver(id: string): Promise<boolean> {
   try {
-    const driver = await getDriverById(id);
-    if (!driver) {
-      throw new NotFoundError('Driver not found');
-    }
-
     await pool.query('DELETE FROM drivers WHERE id = $1', [id]);
     return true;
   } catch (err) {
-    if (err instanceof NotFoundError) throw err;
     throw new DatabaseError('Failed to delete driver');
   }
 }
