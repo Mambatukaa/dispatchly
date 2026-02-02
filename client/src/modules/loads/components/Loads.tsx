@@ -85,7 +85,7 @@ export default function Loads({
             <TableHeader>Pickup Location</TableHeader>
             <TableHeader>Dropoff Location</TableHeader>
             <TableHeader>Driver</TableHeader>
-            <TableHeader>Date</TableHeader>
+            <TableHeader>Pick Up Date</TableHeader>
             <TableHeader>Status</TableHeader>
             <TableHeader className="text-right">Actions</TableHeader>
           </TableRow>

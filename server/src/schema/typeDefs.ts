@@ -1,6 +1,8 @@
 import { gql } from 'graphql-tag';
 
 export const typeDefs = gql`
+  scalar Date
+
   enum DriverStatus {
     AVAILABLE
     ON_LOAD
@@ -47,8 +49,8 @@ export const typeDefs = gql`
     brokerId: String
     pickup: String!
     dropoff: String!
-    pickupDate: String!
-    dropoffDate: String
+    pickupDate: Date!
+    dropoffDate: Date!
     rate: Float
     notes: String
   }
@@ -74,8 +76,8 @@ export const typeDefs = gql`
     pickup: String
     dropoff: String
     ref: String
-    pickupDate: String
-    dropoffDate: String
+    pickupDate: Date!
+    dropoffDate: Date!
     rate: Float
     notes: String
     status: LoadStatus

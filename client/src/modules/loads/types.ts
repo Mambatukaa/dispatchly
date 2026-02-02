@@ -5,21 +5,20 @@ export interface Load {
   brokerId: string
   pickup: string
   dropoff: string
-  pickupDate?: string
-  dropoffDate?: string
+  pickupDate?: Date
+  dropoffDate?: Date
   rate?: number
   notes?: string
   status?: 'NEW' | 'BOOKED' | 'DISPATCHED' | 'PICKED_UP' | 'DELIVERED' | 'INVOICED' | 'PAID' | 'CANCELED'
 }
-
 export interface LoadInput {
   driverId: string
   brokerId: string
   pickup: string
   dropoff: string
   ref?: string
-  pickupDate?: string
-  dropoffDate?: string
+  pickupDate?: Date
+  dropoffDate?: Date
   rate?: number
   notes?: string
   status?: 'NEW' | 'BOOKED' | 'DISPATCHED' | 'PICKED_UP' | 'DELIVERED' | 'INVOICED' | 'PAID' | 'CANCELED'

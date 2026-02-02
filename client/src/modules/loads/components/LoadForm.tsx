@@ -7,7 +7,7 @@ import { Input } from '@/components/input'
 import { Select } from '@/components/select'
 import { Button } from '@/components/button'
 import { Textarea } from '@/components/textarea'
-import { formatDateForDateTimeInput, dateTimeLocalToISO } from '@/lib/dateUtils'
+import { dateToDateTimeLocal, dateTimeLocalToDate } from '@/lib/dateUtils'
 
 type Props = {
   load?: Load
@@ -18,7 +18,6 @@ type Props = {
 }
 
 const LOAD_STATUSES = [
-  { value: 'NEW', label: 'New' },
   { value: 'BOOKED', label: 'Booked' },
   { value: 'DISPATCHED', label: 'Dispatched' },
   { value: 'PICKED_UP', label: 'Picked Up' },
@@ -28,67 +27,52 @@ const LOAD_STATUSES = [
   { value: 'CANCELED', label: 'Canceled' },
 ]
 
-export default function LoadForm({ load, onSubmit, onCancel, drivers, brokers }: Props) {
+export default function LoadForm({ load = {} as Load, onSubmit, onCancel, drivers, brokers }: Props) {
   const [formData, setFormData] = useState({
-    driverId: '',
-    brokerId: '',
-    pickup: '',
-    dropoff: '',
-    ref: '',
-    pickupDateTime: '',
-    dropoffDateTime: '',
-    rate: '',
-    notes: '',
-    status: 'NEW',
+    driverId: load.driverId || '',
+    brokerId: load.brokerId || '',
+    pickup: load.pickup || '',
+    dropoff: load.dropoff || '',
+    ref: load.ref || '',
+    pickupDateTime: load.pickupDate ? new Date(load.pickupDate) : new Date(),
+    dropoffDateTime: load.dropoffDate ? new Date(load.dropoffDate) : new Date(),
+    rate: load.rate || 0,
+    notes: load.notes || '',
+    status: load.status || 'BOOKED',
   })
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  useEffect(() => {
-    if (load) {
-      const formattedPickupDateTime = formatDateForDateTimeInput(load.pickupDate)
-      const formattedDropoffDateTime = formatDateForDateTimeInput(load.dropoffDate)
-      setFormData({
-        driverId: load.driverId || '',
-        brokerId: load.brokerId || '',
-        pickup: load.pickup || '',
-        dropoff: load.dropoff || '',
-        ref: load.ref || '',
-        pickupDateTime: formattedPickupDateTime,
-        dropoffDateTime: formattedDropoffDateTime,
-        rate: load.rate ? String(load.rate) : '',
-        notes: load.notes || '',
-        status: load.status || 'NEW',
-      })
-    } else {
-      setFormData({
-        driverId: '',
-        brokerId: '',
-        pickup: '',
-        dropoff: '',
-        ref: '',
-        pickupDateTime: '',
-        dropoffDateTime: '',
-        rate: '',
-        notes: '',
-        status: 'NEW',
-      })
-    }
-  }, [load])
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
+
+    if (name === 'pickupDateTime' || name === 'dropoffDateTime') {
+      // Convert datetime-local string to Date object
+      setFormData((prev) => ({ ...prev, [name]: dateTimeLocalToDate(value) }))
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }))
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
     setIsSubmitting(true)
+
     try {
+      const pickupDate = formData.pickupDateTime instanceof Date
+        ? formData.pickupDateTime.toISOString()
+        : new Date(formData.pickupDateTime).toISOString()
+
+      const dropoffDate = formData.dropoffDateTime instanceof Date
+        ? formData.dropoffDateTime.toISOString()
+        : new Date(formData.dropoffDateTime).toISOString()
+
       await onSubmit({
         ...formData,
-        rate: formData.rate ? parseFloat(formData.rate) : null,
-        pickupDate: formData.pickupDateTime ? dateTimeLocalToISO(formData.pickupDateTime) : null,
-        dropoffDate: formData.dropoffDateTime ? dateTimeLocalToISO(formData.dropoffDateTime) : null,
+        rate: formData.rate,
+        pickupDate,
+        dropoffDate,
       })
     } finally {
       setIsSubmitting(false)
@@ -136,25 +120,25 @@ export default function LoadForm({ load, onSubmit, onCancel, drivers, brokers }:
           </Field>
         </Fieldset>
 
-        <Fieldset className="col-span-2">
+        <Fieldset>
           <Field>
-            <Label>Pickup Date & Time</Label>
+            <Label>Pickup Date & Time *</Label>
             <Input
               type="datetime-local"
               name="pickupDateTime"
-              value={formData.pickupDateTime}
+              value={dateToDateTimeLocal(formData.pickupDateTime)}
               onChange={handleChange}
             />
           </Field>
         </Fieldset>
 
-        <Fieldset className="col-span-2">
+        <Fieldset>
           <Field>
-            <Label>Dropoff Date & Time</Label>
+            <Label>Dropoff Date & Time *</Label>
             <Input
               type="datetime-local"
               name="dropoffDateTime"
-              value={formData.dropoffDateTime}
+              value={dateToDateTimeLocal(formData.dropoffDateTime)}
               onChange={handleChange}
             />
           </Field>

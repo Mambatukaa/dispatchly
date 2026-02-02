@@ -30,13 +30,23 @@ export function formatDateForInput(date: string | number | Date | undefined | nu
 
 /**
  * Convert a datetime-local string (YYYY-MM-DDTHH:mm) to ISO string
+ * Preserves the local time as provided (no timezone conversion)
  */
 export function dateTimeLocalToISO(dateTimeLocal: string): string {
   if (!dateTimeLocal) return ''
 
   try {
-    const parsed = dayjs(dateTimeLocal)
-    return parsed.isValid() ? parsed.toISOString() : ''
+    // Directly construct ISO string from datetime-local format
+    // datetime-local format is already YYYY-MM-DDTHH:mm
+    // We just need to add seconds and Z suffix
+    const isoString =
+      dateTimeLocal.length === 16
+        ? `${dateTimeLocal}:00Z`
+        : dateTimeLocal.includes(':')
+          ? `${dateTimeLocal}:00Z`.replace(/Z.*Z/, 'Z')
+          : ''
+
+    return isoString
   } catch {
     return ''
   }
@@ -53,5 +63,34 @@ export function formatDateForDateTimeInput(date: string | number | Date | undefi
     return parsed.isValid() ? parsed.format('YYYY-MM-DDTHH:mm') : ''
   } catch {
     return ''
+  }
+}
+
+/**
+ * Convert a Date object to datetime-local string format (YYYY-MM-DDTHH:mm)
+ */
+export function dateToDateTimeLocal(date: Date | undefined | null): string {
+  if (!date) return ''
+
+  try {
+    const parsed = dayjs(date)
+    return parsed.isValid() ? parsed.format('YYYY-MM-DDTHH:mm') : ''
+  } catch {
+    return ''
+  }
+}
+
+/**
+ * Convert a datetime-local string (YYYY-MM-DDTHH:mm) to a Date object
+ */
+export function dateTimeLocalToDate(dateTimeLocal: string): Date {
+  if (!dateTimeLocal) return new Date()
+
+  try {
+    // Parse the datetime-local string and convert to Date
+    const parsed = dayjs(dateTimeLocal)
+    return parsed.isValid() ? parsed.toDate() : new Date()
+  } catch {
+    return new Date()
   }
 }
