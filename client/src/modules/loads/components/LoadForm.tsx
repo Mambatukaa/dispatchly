@@ -241,7 +241,7 @@ export default function LoadForm({ load = {} as Load, onSubmit, onCancel, driver
           type="submit"
           disabled={isSubmitting}
         >
-          {isSubmitting ? 'Saving...' : load ? 'Update Load' : 'Create Load'}
+          {isSubmitting ? 'Saving...' : load.id ? 'Update Load' : 'Create Load'}
         </Button>
       </div>
     </form>
