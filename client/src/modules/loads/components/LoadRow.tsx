@@ -5,13 +5,14 @@ import { Badge } from '@/components/badge'
 import { TableCell, TableRow } from '@/components/table'
 import { Dropdown, DropdownButton, DropdownItem, DropdownMenu } from '@/components/dropdown'
 import { EllipsisVerticalIcon } from '@heroicons/react/16/solid'
+import { formatDate } from '@/lib/dateUtils'
 
 interface Load {
   id: string
   ref?: string
   pickup: string
   dropoff: string
-  pickupDate?: string
+  pickupDate?: string | number
   status?: string
 }
 
@@ -45,7 +46,7 @@ export default function LoadRow({ load, driver, onEdit, onDelete }: LoadRowProps
       <TableCell>{load.pickup}</TableCell>
       <TableCell>{load.dropoff}</TableCell>
       <TableCell>{driver?.name || '-'}</TableCell>
-      <TableCell className="text-zinc-500">{load.pickupDate || '-'}</TableCell>
+      <TableCell className="text-zinc-500">{formatDate(load.pickupDate)}</TableCell>
       <TableCell>
         <Badge color={getStatusColor(load.status)}>{load.status}</Badge>
       </TableCell>

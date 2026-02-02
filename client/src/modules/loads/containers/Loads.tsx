@@ -6,18 +6,16 @@ import { useGetLoads } from './useLoads'
 import { useLoadService } from './useLoadService'
 import { useGetDrivers } from '@/modules/drivers/containers/useDrivers'
 import Loads from '@/modules/loads/components/Loads'
-import LoadForm from '@/components/loads/load-form'
 import { Dialog } from '@/components/dialog'
 import { Button } from '@/components/button'
 import { Heading } from '@/components/heading'
+import LoadForm from '@/modules/loads/components/LoadForm'
 
 export default function LoadsContainer() {
   const { data: loadsData, loading: loadsLoading, refetch } = useGetLoads()
   const { data: driversData } = useGetDrivers()
   const { createLoad, updateLoad, deleteLoad, loading: isSubmitting } = useLoadService()
 
-  const [isFormOpen, setIsFormOpen] = useState(false)
-  const [selectedLoad, setSelectedLoad] = useState<any | undefined>(undefined)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [deletingLoadId, setDeletingLoadId] = useState<string | null>(null)
   const [isDeletingLoad, setIsDeletingLoad] = useState(false)
@@ -35,8 +33,6 @@ export default function LoadsContainer() {
       const result = await mutationFn(formData)
       if (result.success) {
         await refetch()
-        setIsFormOpen(false)
-        setSelectedLoad(undefined)
         Alert.success(successMessage)
       } else {
         Alert.error(String(result.error) || errorMessage)
@@ -50,14 +46,9 @@ export default function LoadsContainer() {
     await handleLoadMutation(createLoad, formData, 'Load created successfully', 'Failed to create load')
   }
 
-  const handleEditLoad = (load: any) => {
-    setSelectedLoad(load)
-    setIsFormOpen(true)
-  }
-
-  const handleUpdateLoad = async (formData: any) => {
+  const handleUpdateLoad = async (id: string, formData: any) => {
     await handleLoadMutation(
-      (data) => updateLoad(selectedLoad.id, data),
+      (data) => updateLoad(id, data),
       formData,
       'Load updated successfully',
       'Failed to update load'
@@ -90,32 +81,17 @@ export default function LoadsContainer() {
     }
   }
 
-  const handleFormCancel = () => {
-    setIsFormOpen(false)
-    setSelectedLoad(undefined)
-  }
-
   return (
     <>
       <Loads
         loads={loads}
         drivers={drivers}
         isLoading={loadsLoading}
-        onCreateClick={() => setIsFormOpen(true)}
-        onEditClick={handleEditLoad}
+        onAddLoad={handleAddLoad}
+        onUpdateLoad={handleUpdateLoad}
         onDeleteClick={handleDeleteClick}
+        isSubmitting={isSubmitting}
       />
-
-      <Dialog open={isFormOpen} onClose={handleFormCancel}>
-        <Heading>{selectedLoad ? 'Edit Load' : 'Create Load'}</Heading>
-        <LoadForm
-          editingLoad={selectedLoad}
-          onSubmit={selectedLoad ? handleUpdateLoad : handleAddLoad}
-          drivers={drivers}
-          isLoading={isSubmitting}
-          onCancel={handleFormCancel}
-        />
-      </Dialog>
 
       <Dialog open={isDeleteDialogOpen} onClose={() => !isDeletingLoad && setIsDeleteDialogOpen(false)}>
         <Heading>Delete Load</Heading>

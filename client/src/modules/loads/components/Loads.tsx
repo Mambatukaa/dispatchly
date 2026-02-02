@@ -1,9 +1,12 @@
 'use client'
 
+import { useState } from 'react'
 import { Button } from '@/components/button'
 import { Heading } from '@/components/heading'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table'
+import { Dialog } from '@/components/dialog'
 import LoadRow from './LoadRow'
+import LoadForm from './LoadForm'
 
 interface Load {
   id: string
@@ -11,7 +14,7 @@ interface Load {
   pickup: string
   dropoff: string
   driverId?: string
-  pickupDate?: string
+  pickupDate?: string | number
   status?: string
 }
 
@@ -24,25 +27,54 @@ interface LoadsProps {
   loads: Load[]
   drivers: Driver[]
   isLoading: boolean
-  onCreateClick: () => void
-  onEditClick: (load: Load) => void
+  onAddLoad: (data: any) => Promise<void>
+  onUpdateLoad: (id: string, data: any) => Promise<void>
   onDeleteClick: (loadId: string) => void
+  isSubmitting: boolean
 }
 
 export default function Loads({
   loads,
   drivers,
   isLoading,
-  onCreateClick,
-  onEditClick,
+  onAddLoad,
+  onUpdateLoad,
   onDeleteClick,
+  isSubmitting,
 }: LoadsProps) {
+  const [isFormOpen, setIsFormOpen] = useState(false)
+  const [editingLoad, setEditingLoad] = useState<Load | undefined>(undefined)
+
+  const handleAddClick = () => {
+    setEditingLoad(undefined)
+    setIsFormOpen(true)
+  }
+
+  const handleEditClick = (load: Load) => {
+    setEditingLoad(load)
+    setIsFormOpen(true)
+  }
+
+  const handleFormCancel = () => {
+    setIsFormOpen(false)
+  }
+
+  const handleFormSubmit = async (formData: any) => {
+    if (editingLoad) {
+      await onUpdateLoad(editingLoad.id, formData)
+    } else {
+      await onAddLoad(formData)
+    }
+    setIsFormOpen(false)
+    setEditingLoad(undefined)
+  }
+
   return (
     <>
       {/* Action Bar */}
       <div className="flex items-end justify-between gap-4">
         <Heading>Loads ({loads.length})</Heading>
-        <Button onClick={onCreateClick} className="cursor-pointer">
+        <Button onClick={handleAddClick} className="cursor-pointer">
           Create load
         </Button>
       </div>
@@ -79,13 +111,24 @@ export default function Loads({
                 key={load.id}
                 load={load}
                 driver={drivers.find((d) => d.id === load.driverId)}
-                onEdit={onEditClick}
+                onEdit={handleEditClick}
                 onDelete={onDeleteClick}
               />
             ))
           )}
         </TableBody>
       </Table>
+
+      {/* Form Dialog */}
+      <Dialog open={isFormOpen} onClose={handleFormCancel}>
+        <Heading>{editingLoad ? 'Edit Load' : 'Create Load'}</Heading>
+        <LoadForm
+          load={editingLoad}
+          onSubmit={handleFormSubmit}
+          drivers={drivers}
+          onCancel={handleFormCancel}
+        />
+      </Dialog>
     </>
   )
 }
