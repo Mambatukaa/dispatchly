@@ -1,20 +1,13 @@
 'use client'
 
 import Link from 'next/link'
+import { useState } from 'react'
 import { Badge } from '@/components/badge'
 import { TableCell, TableRow } from '@/components/table'
-import { Dropdown, DropdownButton, DropdownItem, DropdownMenu } from '@/components/dropdown'
-import { EllipsisVerticalIcon } from '@heroicons/react/16/solid'
+import { Button } from '@/components/button'
+import { TrashIcon, PencilIcon } from '@heroicons/react/24/solid'
 import { formatDate } from '@/lib/dateUtils'
-
-interface Load {
-  id: string
-  ref?: string
-  pickup: string
-  dropoff: string
-  pickupDate?: string | number
-  status?: string
-}
+import type { Load } from '../types'
 
 interface Driver {
   id: string
@@ -36,6 +29,19 @@ const getStatusColor = (status?: string) => {
 }
 
 export default function LoadRow({ load, driver, onEdit, onDelete }: LoadRowProps) {
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  const handleDelete = async () => {
+    if (window.confirm('Are you sure you want to delete this load?')) {
+      setIsDeleting(true)
+      try {
+        await onDelete(load.id)
+      } finally {
+        setIsDeleting(false)
+      }
+    }
+  }
+
   return (
     <TableRow>
       <TableCell className="font-semibold">
@@ -51,31 +57,23 @@ export default function LoadRow({ load, driver, onEdit, onDelete }: LoadRowProps
         <Badge color={getStatusColor(load.status)}>{load.status}</Badge>
       </TableCell>
       <TableCell className="text-right">
-        <Dropdown>
-          <DropdownButton plain aria-label="More options">
-            <EllipsisVerticalIcon className="w-4 h-4" />
-          </DropdownButton>
-          <DropdownMenu anchor="bottom end">
-            <DropdownItem href={`/loads/${load.id}`}>View</DropdownItem>
-            <DropdownItem
-              onClick={(e) => {
-                e.preventDefault()
-                onEdit(load)
-              }}
-            >
-              Edit
-            </DropdownItem>
-            <DropdownItem
-              onClick={(e) => {
-                e.preventDefault()
-                onDelete(load.id)
-              }}
-              className="text-red-600"
-            >
-              Delete
-            </DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
+        <div className="flex justify-end gap-3">
+          <Button
+            onClick={() => onEdit(load)}
+            className="text-sm cursor-pointer"
+            plain
+          >
+            <PencilIcon className="h-4 w-4" />
+          </Button>
+          <Button
+            onClick={handleDelete}
+            className="text-sm text-red-600 hover:text-red-700 cursor-pointer"
+            plain
+            disabled={isDeleting}
+          >
+            <TrashIcon className="h-4 w-4" />
+          </Button>
+        </div>
       </TableCell>
     </TableRow>
   )

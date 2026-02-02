@@ -5,8 +5,8 @@ import { useState } from 'react'
 import type { Driver } from '../types'
 import { Badge } from '@/components/badge'
 import { TableCell, TableRow } from '@/components/table'
-import { Dropdown, DropdownButton, DropdownItem, DropdownMenu } from '@/components/dropdown'
-import { EllipsisVerticalIcon } from '@heroicons/react/16/solid'
+import { TrashIcon, PencilIcon } from '@heroicons/react/24/solid'
+import { Button } from '@/components/button'
 
 type Props = {
   driver: Driver
@@ -54,31 +54,23 @@ export default function DriverRow({ driver, removeItem, onEdit }: Props) {
         <Badge color={getStatusColor(driver.status)}>{driver.status}</Badge>
       </TableCell>
       <TableCell className="text-right">
-        <Dropdown>
-          <DropdownButton plain aria-label="More options">
-            <EllipsisVerticalIcon className="w-4 h-4" />
-          </DropdownButton>
-          <DropdownMenu anchor="bottom end">
-            <DropdownItem
-              onClick={(e) => {
-                e.preventDefault()
-                onEdit(driver)
-              }}
-            >
-              Edit
-            </DropdownItem>
-            <DropdownItem
-              onClick={(e) => {
-                e.preventDefault()
-                handleRemove()
-              }}
-              disabled={isDeleting}
-              className="text-red-600"
-            >
-              {isDeleting ? 'Deleting...' : 'Delete'}
-            </DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
+        <div className="flex justify-end gap-3">
+          <Button
+            onClick={() => onEdit(driver)}
+            className="text-sm cursor-pointer"
+            plain
+          >
+            <PencilIcon className="h-4 w-4" />
+          </Button>
+          <Button
+            onClick={handleRemove}
+            className="text-sm text-red-600 hover:text-red-700 cursor-pointer"
+            plain
+            disabled={isDeleting}
+          >
+            <TrashIcon className="h-4 w-4" />
+          </Button>
+        </div>
       </TableCell>
     </TableRow>
   )

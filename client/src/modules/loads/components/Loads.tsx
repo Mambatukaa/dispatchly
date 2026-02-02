@@ -7,16 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Dialog } from '@/components/dialog'
 import LoadRow from './LoadRow'
 import LoadForm from './LoadForm'
-
-interface Load {
-  id: string
-  ref?: string
-  pickup: string
-  dropoff: string
-  driverId?: string
-  pickupDate?: string | number
-  status?: string
-}
+import type { Load } from '../types'
 
 interface Driver {
   id: string
