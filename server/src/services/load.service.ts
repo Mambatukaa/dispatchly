@@ -42,10 +42,11 @@ export async function createLoad(input: LoadInput): Promise<Load> {
     const id = generateObjectId();
     const ref = input.ref || `LOAD-${Date.now()}`;
     const pickupDate = input.pickupDate || new Date().toISOString();
+    const dropoffDate = input.dropoffDate || null;
 
     const query = `
-      INSERT INTO loads (id, ref, status, driver_id, pickup, dropoff, pickup_date, rate, shipper_name, notes, created_at)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, CURRENT_TIMESTAMP)
+      INSERT INTO loads (id, ref, status, driver_id, broker_id, pickup, dropoff, pickup_date, dropoff_date, rate, notes, created_at)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, CURRENT_TIMESTAMP)
       RETURNING *
     `;
 
@@ -54,11 +55,12 @@ export async function createLoad(input: LoadInput): Promise<Load> {
       ref,
       input.status || 'NEW',
       input.driverId,
+      input.brokerId,
       input.pickup,
       input.dropoff,
       pickupDate,
+      dropoffDate,
       input.rate || null,
-      input.shipperName || null,
       input.notes || null
     ]);
 
@@ -77,23 +79,26 @@ export async function updateLoad(id: string, input: LoadInput): Promise<Load> {
     }
 
     // Map of input field names to database column names
-    const fieldMap: Record<keyof LoadInput, string> = {
+    const fieldMap: Record<string, string> = {
       driverId: 'driver_id',
+      brokerId: 'broker_id',
       pickup: 'pickup',
       dropoff: 'dropoff',
       ref: 'ref',
       pickupDate: 'pickup_date',
+      dropoffDate: 'dropoff_date',
       rate: 'rate',
-      shipperName: 'shipper_name',
       notes: 'notes',
       status: 'status'
     };
 
     // Filter out undefined values and map to database columns
     const updates = Object.entries(input)
-      .filter(([, value]) => value !== undefined && value !== '')
+      .filter(
+        ([key, value]) => value !== undefined && value !== '' && fieldMap[key]
+      )
       .map(([key, value]) => ({
-        column: fieldMap[key as keyof LoadInput],
+        column: fieldMap[key],
         value
       }));
 
@@ -138,11 +143,12 @@ function rowToLoad(row: any): Load {
     ref: row.ref,
     status: row.status,
     driverId: row.driver_id,
+    brokerId: row.broker_id,
     pickup: row.pickup,
     dropoff: row.dropoff,
     pickupDate: row.pickup_date,
+    dropoffDate: row.dropoff_date,
     rate: row.rate,
-    shipperName: row.shipper_name,
     notes: row.notes
   };
 }

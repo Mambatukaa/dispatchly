@@ -5,6 +5,7 @@ import Alert from '@/utils/alert'
 import { useGetLoads } from './useLoads'
 import { useLoadService } from './useLoadService'
 import { useGetDrivers } from '@/modules/drivers/containers/useDrivers'
+import { useGetBrokers } from '@/modules/brokers'
 import Loads from '@/modules/loads/components/Loads'
 import { Dialog } from '@/components/dialog'
 import { Button } from '@/components/button'
@@ -14,6 +15,7 @@ import LoadForm from '@/modules/loads/components/LoadForm'
 export default function LoadsContainer() {
   const { data: loadsData, loading: loadsLoading, refetch } = useGetLoads()
   const { data: driversData } = useGetDrivers()
+  const { data: brokersData } = useGetBrokers()
   const { createLoad, updateLoad, deleteLoad, loading: isSubmitting } = useLoadService()
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
@@ -22,6 +24,7 @@ export default function LoadsContainer() {
 
   const loads = (loadsData as any)?.loads || []
   const drivers = (driversData as any)?.drivers || []
+  const brokers = (brokersData as any)?.brokers || []
 
   const handleLoadMutation = async (
     mutationFn: (data: any) => Promise<any>,
@@ -86,6 +89,7 @@ export default function LoadsContainer() {
       <Loads
         loads={loads}
         drivers={drivers}
+        brokers={brokers}
         isLoading={loadsLoading}
         onAddLoad={handleAddLoad}
         onUpdateLoad={handleUpdateLoad}

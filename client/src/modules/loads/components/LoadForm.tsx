@@ -14,6 +14,7 @@ type Props = {
   onSubmit: (data: any) => Promise<void>
   onCancel?: () => void
   drivers: any[]
+  brokers: any[]
 }
 
 const LOAD_STATUSES = [
@@ -27,15 +28,16 @@ const LOAD_STATUSES = [
   { value: 'CANCELED', label: 'Canceled' },
 ]
 
-export default function LoadForm({ load, onSubmit, onCancel, drivers }: Props) {
+export default function LoadForm({ load, onSubmit, onCancel, drivers, brokers }: Props) {
   const [formData, setFormData] = useState({
     driverId: '',
+    brokerId: '',
     pickup: '',
     dropoff: '',
     ref: '',
     pickupDateTime: '',
+    dropoffDateTime: '',
     rate: '',
-    shipperName: '',
     notes: '',
     status: 'NEW',
   })
@@ -43,27 +45,30 @@ export default function LoadForm({ load, onSubmit, onCancel, drivers }: Props) {
 
   useEffect(() => {
     if (load) {
-      const formattedDateTime = formatDateForDateTimeInput(load.pickupDate)
+      const formattedPickupDateTime = formatDateForDateTimeInput(load.pickupDate)
+      const formattedDropoffDateTime = formatDateForDateTimeInput(load.dropoffDate)
       setFormData({
         driverId: load.driverId || '',
+        brokerId: load.brokerId || '',
         pickup: load.pickup || '',
         dropoff: load.dropoff || '',
         ref: load.ref || '',
-        pickupDateTime: formattedDateTime,
+        pickupDateTime: formattedPickupDateTime,
+        dropoffDateTime: formattedDropoffDateTime,
         rate: load.rate ? String(load.rate) : '',
-        shipperName: load.shipperName || '',
         notes: load.notes || '',
         status: load.status || 'NEW',
       })
     } else {
       setFormData({
         driverId: '',
+        brokerId: '',
         pickup: '',
         dropoff: '',
         ref: '',
         pickupDateTime: '',
+        dropoffDateTime: '',
         rate: '',
-        shipperName: '',
         notes: '',
         status: 'NEW',
       })
@@ -83,6 +88,7 @@ export default function LoadForm({ load, onSubmit, onCancel, drivers }: Props) {
         ...formData,
         rate: formData.rate ? parseFloat(formData.rate) : null,
         pickupDate: formData.pickupDateTime ? dateTimeLocalToISO(formData.pickupDateTime) : null,
+        dropoffDate: formData.dropoffDateTime ? dateTimeLocalToISO(formData.dropoffDateTime) : null,
       })
     } finally {
       setIsSubmitting(false)
@@ -111,6 +117,25 @@ export default function LoadForm({ load, onSubmit, onCancel, drivers }: Props) {
           </Field>
         </Fieldset>
 
+        <Fieldset>
+          <Field>
+            <Label>Broker *</Label>
+            <Select
+              name="brokerId"
+              value={formData.brokerId}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select a broker</option>
+              {brokers.map((broker) => (
+                <option key={broker.id} value={broker.id}>
+                  {broker.brokerName}
+                </option>
+              ))}
+            </Select>
+          </Field>
+        </Fieldset>
+
         <Fieldset className="col-span-2">
           <Field>
             <Label>Pickup Date & Time</Label>
@@ -118,6 +143,18 @@ export default function LoadForm({ load, onSubmit, onCancel, drivers }: Props) {
               type="datetime-local"
               name="pickupDateTime"
               value={formData.pickupDateTime}
+              onChange={handleChange}
+            />
+          </Field>
+        </Fieldset>
+
+        <Fieldset className="col-span-2">
+          <Field>
+            <Label>Dropoff Date & Time</Label>
+            <Input
+              type="datetime-local"
+              name="dropoffDateTime"
+              value={formData.dropoffDateTime}
               onChange={handleChange}
             />
           </Field>
@@ -171,18 +208,6 @@ export default function LoadForm({ load, onSubmit, onCancel, drivers }: Props) {
               onChange={handleChange}
               placeholder="0.00"
               step="0.01"
-            />
-          </Field>
-        </Fieldset>
-
-        <Fieldset className="col-span-2">
-          <Field>
-            <Label>Shipper Name</Label>
-            <Input
-              name="shipperName"
-              value={formData.shipperName}
-              onChange={handleChange}
-              placeholder="Company name"
             />
           </Field>
         </Fieldset>

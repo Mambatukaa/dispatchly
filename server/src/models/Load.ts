@@ -13,22 +13,24 @@ export type Load = {
   ref: string;
   status: LoadStatus;
   driverId?: string;
+  brokerId?: string;
   pickup: string;
   dropoff: string;
   pickupDate: string;
+  dropoffDate?: string;
   rate?: number;
-  shipperName?: string;
   notes?: string;
 };
 
 export type LoadInput = {
   driverId: string;
+  brokerId: string;
   pickup: string;
   dropoff: string;
   ref?: string;
   pickupDate?: string;
+  dropoffDate?: string;
   rate?: number;
-  shipperName?: string;
   notes?: string;
   status?: LoadStatus;
 };

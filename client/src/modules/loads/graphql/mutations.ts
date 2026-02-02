@@ -9,9 +9,10 @@ export const CREATE_LOAD = gql`
       pickup
       dropoff
       driverId
+      brokerId
       pickupDate
+      dropoffDate
       rate
-      shipperName
       notes
     }
   }
@@ -26,9 +27,10 @@ export const UPDATE_LOAD = gql`
       pickup
       dropoff
       driverId
+      brokerId
       pickupDate
+      dropoffDate
       rate
-      shipperName
       notes
     }
   }

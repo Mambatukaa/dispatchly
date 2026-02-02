@@ -14,9 +14,15 @@ interface Driver {
   name: string
 }
 
+interface Broker {
+  id: string
+  brokerName: string
+}
+
 interface LoadsProps {
   loads: Load[]
   drivers: Driver[]
+  brokers: Broker[]
   isLoading: boolean
   onAddLoad: (data: any) => Promise<void>
   onUpdateLoad: (id: string, data: any) => Promise<void>
@@ -27,6 +33,7 @@ interface LoadsProps {
 export default function Loads({
   loads,
   drivers,
+  brokers,
   isLoading,
   onAddLoad,
   onUpdateLoad,
@@ -117,6 +124,7 @@ export default function Loads({
           load={editingLoad}
           onSubmit={handleFormSubmit}
           drivers={drivers}
+          brokers={brokers}
           onCancel={handleFormCancel}
         />
       </Dialog>

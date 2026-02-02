@@ -96,6 +96,10 @@ export const resolvers = {
     driver: async (load: Load) => {
       if (!load.driverId) return null;
       return await getDriverById(load.driverId);
+    },
+    broker: async (load: Load) => {
+      if (!load.brokerId) return null;
+      return await getBrokerById(load.brokerId);
     }
   }
 };

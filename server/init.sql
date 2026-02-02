@@ -48,20 +48,26 @@ IF NOT EXISTS loads
 (50) DEFAULT 'NEW',
   driver_id VARCHAR
 (24),
+  broker_id VARCHAR
+(24),
   pickup VARCHAR
 (255) NOT NULL,
   dropoff VARCHAR
 (255) NOT NULL,
   pickup_date TIMESTAMP NOT NULL,
+  dropoff_date TIMESTAMP,
   rate DECIMAL
 (10, 2),
-  shipper_name VARCHAR
-(255),
   notes TEXT,
   created_at TIMESTAMP DEFAULT NOW
 (),
   FOREIGN KEY
 (driver_id) REFERENCES drivers
+(id) ON
+DELETE CASCADE,
+  FOREIGN KEY
+(broker_id)
+REFERENCES brokers
 (id) ON
 DELETE CASCADE
 );
