@@ -12,42 +12,53 @@ export default function DriversContainer() {
 
   const drivers = (data as any)?.drivers || []
 
-  const handleAddDriver = async (formData: any) => {
+  const handleDriverMutation = async (
+    mutationFn: (data: any) => Promise<any>,
+    formData: any,
+    successMessage: string,
+    errorMessage: string
+  ) => {
     try {
-      const result = await createDriver({
-        name: formData.name,
-        phone: formData.phone,
-        email: formData.email,
-        status: formData.status || 'AVAILABLE',
-      })
+      const result = await mutationFn(formData)
 
       if (result.success) {
-        Alert.success('Driver created successfully')
+        Alert.success(successMessage)
       } else {
-        Alert.error(String(result.error) || 'Failed to create driver')
+        Alert.error(String(result.error) || errorMessage)
       }
     } catch (error: any) {
-      Alert.error(error.message || 'Failed to create driver')
+      Alert.error(error.message || errorMessage)
     }
   }
 
-  const handleEditDriver = async (formData: any) => {
-    try {
-      const result = await updateDriver(formData.id, {
-        name: formData.name,
-        phone: formData.phone,
-        email: formData.email,
-        status: formData.status || 'AVAILABLE',
-      })
+  const handleAddDriver = async (formData: any) => {
+    await handleDriverMutation(
+      (data) =>
+        createDriver({
+          name: data.name,
+          phone: data.phone,
+          email: data.email,
+          status: data.status || 'AVAILABLE',
+        }),
+      formData,
+      'Driver created successfully',
+      'Failed to create driver'
+    )
+  }
 
-      if (result.success) {
-        Alert.success('Driver updated successfully')
-      } else {
-        Alert.error(String(result.error) || 'Failed to update driver')
-      }
-    } catch (error: any) {
-      Alert.error(error.message || 'Failed to update driver')
-    }
+  const handleEditDriver = async (formData: any) => {
+    await handleDriverMutation(
+      (data) =>
+        updateDriver(data.id, {
+          name: data.name,
+          phone: data.phone,
+          email: data.email,
+          status: data.status || 'AVAILABLE',
+        }),
+      formData,
+      'Driver updated successfully',
+      'Failed to update driver'
+    )
   }
 
   const handleDeleteDriver = async (driverId: string) => {

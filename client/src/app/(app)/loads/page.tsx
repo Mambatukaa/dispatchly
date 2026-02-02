@@ -1,7 +1,8 @@
 'use client'
 
-import LoadsListContainer from '@/modules/loads/containers/list'
+import { LoadsContainer } from '@/modules/loads'
 
 export default function Loads() {
-  return <LoadsListContainer />
+  return <LoadsContainer />
 }
+
