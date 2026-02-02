@@ -1,13 +1,13 @@
 'use client'
 
 import React from 'react'
-import { Drivers as DriversComponent } from '../components'
+import { Drivers } from '../components'
 import { useGetDrivers } from './useDrivers'
 import { useDriverService } from './useDriverService'
 import Alert from '@/utils/alert'
 
 export default function DriversContainer() {
-  const { data, loading } = useGetDrivers()
+  const { data, loading, refetch } = useGetDrivers()
   const { createDriver, updateDriver, deleteDriver } = useDriverService()
 
   const drivers = (data as any)?.drivers || []
@@ -20,8 +20,8 @@ export default function DriversContainer() {
   ) => {
     try {
       const result = await mutationFn(formData)
-
       if (result.success) {
+        await refetch()
         Alert.success(successMessage)
       } else {
         Alert.error(String(result.error) || errorMessage)
@@ -65,6 +65,7 @@ export default function DriversContainer() {
     try {
       const result = await deleteDriver(driverId)
       if (result.success) {
+        await refetch()
         Alert.success('Driver deleted successfully')
       } else {
         Alert.error(String(result.error) || 'Failed to delete driver')
@@ -75,7 +76,7 @@ export default function DriversContainer() {
   }
 
   return (
-    <DriversComponent
+    <Drivers
       drivers={drivers}
       totalCount={drivers.length}
       isLoading={loading}

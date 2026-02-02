@@ -39,12 +39,15 @@ export default function Loads({
 }: LoadsProps) {
   return (
     <>
+      {/* Action Bar */}
       <div className="flex items-end justify-between gap-4">
-        <Heading>Loads</Heading>
+        <Heading>Loads ({loads.length})</Heading>
         <Button onClick={onCreateClick} className="cursor-pointer">
           Create load
         </Button>
       </div>
+
+      {/* Table */}
       <Table className="mt-8 [--gutter:--spacing(6)] lg:[--gutter:--spacing(10)]">
         <TableHead>
           <TableRow>
@@ -61,7 +64,7 @@ export default function Loads({
           {isLoading ? (
             <TableRow>
               <TableCell colSpan={7} className="text-center py-8 text-zinc-500">
-                Loading...
+                Loading loads...
               </TableCell>
             </TableRow>
           ) : loads.length === 0 ? (

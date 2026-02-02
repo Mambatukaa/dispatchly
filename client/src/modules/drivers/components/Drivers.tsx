@@ -52,52 +52,17 @@ export default function Drivers({
     handleFormCancel()
   }
 
-  const renderForm = () => {
-    return (
-      <DriverForm
-        driver={editingDriver}
-        onSubmit={handleFormSubmit}
-        onCancel={handleFormCancel}
-      />
-    )
-  }
-
-  const renderActionBar = () => {
-    return (
+  return (
+    <>
+      {/* Action Bar */}
       <div className="flex items-end justify-between gap-4">
         <Heading>Drivers ({totalCount})</Heading>
         <Button onClick={handleAddClick} className="cursor-pointer">
           Create driver
         </Button>
       </div>
-    )
-  }
 
-  const renderTable = () => {
-    if (drivers.length === 0) {
-      return (
-        <Table className="mt-8 [--gutter:--spacing(6)] lg:[--gutter:--spacing(10)]">
-          <TableHead>
-            <TableRow>
-              <TableHeader>Name</TableHeader>
-              <TableHeader>Phone</TableHeader>
-              <TableHeader>Email</TableHeader>
-              <TableHeader>Status</TableHeader>
-              <TableHeader className="text-right">Actions</TableHeader>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            <TableRow>
-              <TableCell colSpan={5} className="text-center py-8 text-zinc-500">
-                No drivers found
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      )
-    }
-
-    return (
+      {/* Table */}
       <Table className="mt-8 [--gutter:--spacing(6)] lg:[--gutter:--spacing(10)]">
         <TableHead>
           <TableRow>
@@ -112,7 +77,13 @@ export default function Drivers({
           {isLoading ? (
             <TableRow>
               <TableCell colSpan={5} className="text-center py-8 text-zinc-500">
-                Loading...
+                Loading drivers...
+              </TableCell>
+            </TableRow>
+          ) : drivers.length === 0 ? (
+            <TableRow>
+              <TableCell colSpan={5} className="text-center py-8 text-zinc-500">
+                No drivers found
               </TableCell>
             </TableRow>
           ) : (
@@ -127,46 +98,15 @@ export default function Drivers({
           )}
         </TableBody>
       </Table>
-    )
-  }
 
-  const content = isLoading ? (
-    <Table className="mt-8 [--gutter:--spacing(6)] lg:[--gutter:--spacing(10)]">
-      <TableHead>
-        <TableRow>
-          <TableHeader>Name</TableHeader>
-          <TableHeader>Phone</TableHeader>
-          <TableHeader>Email</TableHeader>
-          <TableHeader>Status</TableHeader>
-          <TableHeader className="text-right">Actions</TableHeader>
-        </TableRow>
-      </TableHead>
-      <TableBody>
-        <TableRow>
-          <TableCell colSpan={5} className="text-center py-8 text-zinc-500">
-            Loading drivers...
-          </TableCell>
-        </TableRow>
-      </TableBody>
-    </Table>
-  ) : (
-    renderTable()
-  )
-
-  return (
-    <>
-      {renderActionBar()}
-      {content}
-
-      {/* Form Modal */}
+      {/* Form Dialog */}
       <Dialog open={isFormOpen} onClose={handleFormCancel}>
-        <h2 className="text-lg font-semibold text-white mb-1">
-          {editingDriver ? 'Edit Driver' : 'Create Driver'}
-        </h2>
-        <p className="text-sm text-zinc-400 mb-4">
-          {editingDriver ? 'Update driver information' : 'Add a new driver to the system'}
-        </p>
-        {renderForm()}
+        <Heading>{editingDriver ? 'Edit Driver' : 'Create Driver'}</Heading>
+        <DriverForm
+          driver={editingDriver}
+          onSubmit={handleFormSubmit}
+          onCancel={handleFormCancel}
+        />
       </Dialog>
     </>
   )

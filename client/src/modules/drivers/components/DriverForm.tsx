@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import type { Driver } from '../types'
 import { Fieldset, Field, Label } from '@/components/fieldset'
 import { Input } from '@/components/input'
@@ -12,6 +12,12 @@ type Props = {
   onSubmit: (data: any) => Promise<void>
   onCancel?: () => void
 }
+
+const DRIVER_STATUSES = [
+  { value: 'AVAILABLE', label: 'Available' },
+  { value: 'ON_LOAD', label: 'On Load' },
+  { value: 'OFF_DUTY', label: 'Off Duty' },
+]
 
 export default function DriverForm({ driver, onSubmit, onCancel }: Props) {
   const [formData, setFormData] = useState({
@@ -41,10 +47,10 @@ export default function DriverForm({ driver, onSubmit, onCancel }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <Fieldset>
         <Field>
-          <Label>Name</Label>
+          <Label>Name *</Label>
           <Input
             name="name"
             value={formData.name}
@@ -53,8 +59,11 @@ export default function DriverForm({ driver, onSubmit, onCancel }: Props) {
             required
           />
         </Field>
+      </Fieldset>
+
+      <Fieldset>
         <Field>
-          <Label>Phone</Label>
+          <Label>Phone *</Label>
           <Input
             name="phone"
             value={formData.phone}
@@ -63,6 +72,9 @@ export default function DriverForm({ driver, onSubmit, onCancel }: Props) {
             required
           />
         </Field>
+      </Fieldset>
+
+      <Fieldset>
         <Field>
           <Label>Email</Label>
           <Input
@@ -73,6 +85,9 @@ export default function DriverForm({ driver, onSubmit, onCancel }: Props) {
             placeholder="Enter email address"
           />
         </Field>
+      </Fieldset>
+
+      <Fieldset>
         <Field>
           <Label>Status</Label>
           <Select
@@ -80,18 +95,22 @@ export default function DriverForm({ driver, onSubmit, onCancel }: Props) {
             value={formData.status}
             onChange={handleChange}
           >
-            <option value="AVAILABLE">Available</option>
-            <option value="ON_LOAD">On Load</option>
-            <option value="OFF_DUTY">Off Duty</option>
+            {DRIVER_STATUSES.map((status) => (
+              <option key={status.value} value={status.value}>
+                {status.label}
+              </option>
+            ))}
           </Select>
         </Field>
       </Fieldset>
+
       <div className="flex gap-3 justify-end pt-4">
         {onCancel && (
           <Button
             type="button"
             plain
             onClick={onCancel}
+            disabled={isSubmitting}
           >
             Cancel
           </Button>
@@ -100,7 +119,7 @@ export default function DriverForm({ driver, onSubmit, onCancel }: Props) {
           type="submit"
           disabled={isSubmitting}
         >
-          {isSubmitting ? 'Saving...' : driver ? 'Update' : 'Create'}
+          {isSubmitting ? 'Saving...' : driver ? 'Update Driver' : 'Create Driver'}
         </Button>
       </div>
     </form>

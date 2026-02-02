@@ -1,8 +1,8 @@
 'use client'
 
-import { LoadsContainer } from '@/modules/loads'
+import { LoadsContainer } from '@/modules/loads/containers'
 
-export default function Loads() {
+export default function LoadsPage() {
   return <LoadsContainer />
 }
 
