@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS loads;
+DROP TABLE IF EXISTS brokers;
 DROP TABLE IF EXISTS drivers;
 
 CREATE TABLE
@@ -15,6 +16,23 @@ IF NOT EXISTS drivers
   status VARCHAR
 (50) DEFAULT 'AVAILABLE',
   avatar TEXT,
+  created_at TIMESTAMP DEFAULT NOW
+()
+);
+
+CREATE TABLE
+IF NOT EXISTS brokers
+(
+  id VARCHAR
+(24) PRIMARY KEY,
+  logistic_name VARCHAR
+(255) NOT NULL,
+  mc VARCHAR
+(255) NOT NULL,
+  broker_name VARCHAR
+(255) NOT NULL,
+  phone_number VARCHAR
+(20) NOT NULL,
   created_at TIMESTAMP DEFAULT NOW
 ()
 );

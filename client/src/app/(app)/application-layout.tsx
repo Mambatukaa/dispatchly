@@ -40,6 +40,7 @@ import {
   SparklesIcon,
   Square2StackIcon,
   TicketIcon,
+  BuildingOfficeIcon,
 } from '@heroicons/react/20/solid'
 import { usePathname } from 'next/navigation'
 
@@ -133,6 +134,10 @@ export function ApplicationLayout({
               <SidebarItem href="/drivers" current={pathname.startsWith('/drivers')}>
                 <Square2StackIcon />
                 <SidebarLabel>Drivers</SidebarLabel>
+              </SidebarItem>
+              <SidebarItem href="/brokers" current={pathname.startsWith('/brokers')}>
+                <BuildingOfficeIcon />
+                <SidebarLabel>Brokers</SidebarLabel>
               </SidebarItem>
               <SidebarItem href="/loads" current={pathname.startsWith('/loads')}>
                 <TicketIcon />

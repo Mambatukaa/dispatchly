@@ -17,6 +17,15 @@ export const typeDefs = gql`
     createdAt: String!
   }
 
+  type Broker {
+    id: ID!
+    logisticName: String!
+    mc: String!
+    brokerName: String!
+    phoneNumber: String!
+    createdAt: String!
+  }
+
   enum LoadStatus {
     NEW
     BOOKED
@@ -50,6 +59,13 @@ export const typeDefs = gql`
     avatar: String
   }
 
+  input BrokerInput {
+    logisticName: String!
+    mc: String!
+    brokerName: String!
+    phoneNumber: String!
+  }
+
   input LoadInput {
     driverId: ID
     pickup: String
@@ -65,6 +81,8 @@ export const typeDefs = gql`
   type Query {
     drivers: [Driver!]!
     driver(id: ID!): Driver
+    brokers: [Broker!]!
+    broker(id: ID!): Broker
     loads: [Load!]!
     load(id: ID!): Load
     driverLoads(driverId: ID!): [Load!]!
@@ -74,6 +92,10 @@ export const typeDefs = gql`
     createDriver(input: DriverInput!): Driver!
     updateDriver(id: ID!, input: DriverInput!): Driver!
     deleteDriver(id: ID!): Boolean!
+
+    createBroker(input: BrokerInput!): Broker!
+    updateBroker(id: ID!, input: BrokerInput!): Broker!
+    deleteBroker(id: ID!): Boolean!
 
     createLoad(input: LoadInput!): Load!
     updateLoad(id: ID!, input: LoadInput!): Load!

@@ -6,6 +6,13 @@ import {
   deleteDriver
 } from '../services/driver.service';
 import {
+  getBrokers,
+  getBrokerById,
+  createBroker,
+  updateBroker,
+  deleteBroker
+} from '../services/broker.service';
+import {
   getLoads,
   getLoadById,
   getLoadsByDriver,
@@ -24,6 +31,14 @@ export const resolvers = {
 
     driver: async (_: any, { id }: { id: string }) => {
       return await getDriverById(id);
+    },
+
+    brokers: async () => {
+      return await getBrokers();
+    },
+
+    broker: async (_: any, { id }: { id: string }) => {
+      return await getBrokerById(id);
     },
 
     loads: async () => {
@@ -50,6 +65,18 @@ export const resolvers = {
 
     deleteDriver: async (_: any, { id }: { id: string }) => {
       return await deleteDriver(id);
+    },
+
+    createBroker: async (_: any, { input }: { input: any }) => {
+      return await createBroker(input);
+    },
+
+    updateBroker: async (_: any, { id, input }: { id: string; input: any }) => {
+      return await updateBroker(id, input);
+    },
+
+    deleteBroker: async (_: any, { id }: { id: string }) => {
+      return await deleteBroker(id);
     },
 
     createLoad: async (_: any, { input }: { input: any }) => {
