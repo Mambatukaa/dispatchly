@@ -21,6 +21,15 @@ export const GET_DRIVER = gql`
       phone
       status
       createdAt
+      loads {
+        id
+        ref
+        status
+        pickup
+        dropoff
+        pickupDate
+        rate
+      }
     }
   }
 `
@@ -35,7 +44,6 @@ export const GET_DRIVER_LOADS = gql`
       dropoff
       pickupDate
       rate
-      shipperName
     }
   }
 `

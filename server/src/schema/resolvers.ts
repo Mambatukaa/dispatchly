@@ -134,6 +134,12 @@ export const resolvers = {
     }
   },
 
+  Driver: {
+    loads: async (driver: Driver) => {
+      return await getLoadsByDriver(driver.id);
+    }
+  },
+
   Load: {
     driver: async (load: Load) => {
       if (!load.driverId) return null;

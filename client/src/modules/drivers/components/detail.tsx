@@ -9,6 +9,7 @@ import { Heading, Subheading } from '@/components/heading'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table'
 import { Dialog } from '@/components/dialog'
 import { ChevronLeftIcon } from '@heroicons/react/16/solid'
+import { formatDate } from '@/lib/dateUtils'
 import DriverForm from './DriverForm'
 import type { Driver } from '../types'
 
@@ -102,7 +103,7 @@ export default function DriverDetail({ driver, loads, onEditDriver }: DriverDeta
           </div>
         </div>
         <div className="flex gap-4">
-          <Button outline onClick={() => setIsDialogOpen(true)}>
+          <Button className='hover:cursor-pointer' outline onClick={() => setIsDialogOpen(true)}>
             Edit
           </Button>
         </div>
@@ -132,11 +133,15 @@ export default function DriverDetail({ driver, loads, onEditDriver }: DriverDeta
             </TableRow>
           ) : (
             loads.map((load) => (
-              <TableRow key={load.id}>
-                <TableCell className="font-semibold">{load.ref || '—'}</TableCell>
+              <TableRow key={load.id} className="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900">
+                <TableCell>
+                  <Link href={`/loads/${load.id}`} className="font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300">
+                    {load.ref || '—'}
+                  </Link>
+                </TableCell>
                 <TableCell>{load.pickup}</TableCell>
                 <TableCell>{load.dropoff}</TableCell>
-                <TableCell className="text-zinc-500">{load.pickupDate || '—'}</TableCell>
+                <TableCell className="text-zinc-500">{formatDate(load.pickupDate) || '—'}</TableCell>
                 <TableCell>
                   <Badge color={getLoadStatusColor(load.status || 'NEW')}>
                     {load.status || 'NEW'}

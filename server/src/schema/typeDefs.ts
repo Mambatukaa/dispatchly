@@ -17,6 +17,7 @@ export const typeDefs = gql`
     status: DriverStatus!
     avatar: String!
     createdAt: String!
+    loads: [Load!]!
   }
 
   type Broker {

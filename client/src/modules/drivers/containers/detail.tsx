@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { useGetDrivers } from './useDrivers'
+import { useGetDriver } from './useDrivers'
 import { useDriverService } from './useDriverService'
 import DriverDetail from '../components/detail'
 
@@ -11,11 +11,11 @@ export default function DriverDetailContainer() {
   const params = useParams()
   const driverId = params?.id as string
 
-  const { data } = useGetDrivers()
+  const { data, loading, error } = useGetDriver(driverId)
   const { updateDriver } = useDriverService()
 
-  const drivers = (data as any)?.drivers || []
-  const driver = drivers.find((d: any) => d.id === driverId || d.id === parseInt(driverId))
+  const driver = (data as any)?.driver
+  const loads = driver?.loads || []
 
   const handleEditDriver = async (formData: any) => {
     const result = await updateDriver(driverId, {
@@ -31,7 +31,15 @@ export default function DriverDetailContainer() {
     }
   }
 
-  if (!driver) {
+  if (loading) {
+    return (
+      <div className="p-8 text-center">
+        <p className="text-gray-500">Loading driver...</p>
+      </div>
+    )
+  }
+
+  if (!driver || error) {
     return (
       <div className="p-8 text-center">
         <p className="text-gray-500">Driver not found</p>
@@ -45,12 +53,5 @@ export default function DriverDetailContainer() {
     )
   }
 
-  // Mock loads data - replace with actual GraphQL query when available
-  const mockLoads = [
-    { id: '1', ref: 'LD-001', pickup: 'New York, NY', dropoff: 'Boston, MA', status: 'DELIVERED', pickupDate: '2024-01-15' },
-    { id: '2', ref: 'LD-002', pickup: 'Boston, MA', dropoff: 'Philadelphia, PA', status: 'ON_LOAD', pickupDate: '2024-01-16' },
-    { id: '3', ref: 'LD-003', pickup: 'Philadelphia, PA', dropoff: 'Washington, DC', status: 'NEW', pickupDate: '2024-01-17' },
-  ]
-
-  return <DriverDetail driver={driver} loads={mockLoads} onEditDriver={handleEditDriver} />
+  return <DriverDetail driver={driver} loads={loads} onEditDriver={handleEditDriver} />
 }
