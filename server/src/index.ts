@@ -37,8 +37,15 @@ async function startServer() {
     // Start Apollo Server
     await server.start();
 
-    // Apply Apollo middleware
-    app.use('/graphql', expressMiddleware(server));
+    // Apply Apollo middleware with context
+    app.use(
+      '/graphql',
+      expressMiddleware(server, {
+        context: async ({ req }) => ({
+          req
+        })
+      })
+    );
 
     // Health check endpoint
     app.get('/health', (req: Request, res: Response) => {

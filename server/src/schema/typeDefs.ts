@@ -100,6 +100,7 @@ export const typeDefs = gql`
   }
 
   type Query {
+    me: User
     drivers(page: Int, perPage: Int): PaginatedDrivers!
     driver(id: ID!): Driver
     brokers(page: Int, perPage: Int): PaginatedBrokers!
@@ -109,7 +110,32 @@ export const typeDefs = gql`
     driverLoads(driverId: ID!, page: Int, perPage: Int): PaginatedLoads!
   }
 
+  type User {
+    id: ID!
+    firstName: String!
+    lastName: String!
+    email: String!
+    phoneNumber: String!
+    createdAt: String!
+  }
+
+  type AuthResponse {
+    token: String!
+    user: User!
+  }
+
+  input SignupInput {
+    firstName: String!
+    lastName: String!
+    email: String!
+    phoneNumber: String!
+    password: String!
+  }
+
   type Mutation {
+    signup(input: SignupInput!): AuthResponse!
+    signin(email: String!, password: String!): AuthResponse!
+
     createDriver(input: DriverInput!): Driver!
     updateDriver(id: ID!, input: DriverInput!): Driver!
     deleteDriver(id: ID!): Boolean!

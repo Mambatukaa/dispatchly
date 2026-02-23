@@ -20,6 +20,7 @@ import {
   updateLoad,
   deleteLoad
 } from '../services/load.service';
+import { signup, signin, getCurrentUser } from '../services/user.service';
 import { Driver } from '../models/Driver';
 import { Load } from '../models/Load';
 import { GraphQLScalarType, Kind } from 'graphql';
@@ -67,6 +68,11 @@ const DateScalar = new GraphQLScalarType({
 export const resolvers = {
   Date: DateScalar,
   Query: {
+    me: async (_: any, __: any, context: any) => {
+      const authorization = context?.req?.headers?.authorization;
+      return await getCurrentUser(authorization);
+    },
+
     drivers: async (
       _: any,
       { page, perPage }: { page?: number; perPage?: number }
@@ -125,6 +131,17 @@ export const resolvers = {
   },
 
   Mutation: {
+    signup: async (_: any, { input }: { input: any }) => {
+      return await signup(input);
+    },
+
+    signin: async (
+      _: any,
+      { email, password }: { email: string; password: string }
+    ) => {
+      return await signin(email, password);
+    },
+
     createDriver: async (_: any, { input }: { input: any }) => {
       return await createDriver(input);
     },

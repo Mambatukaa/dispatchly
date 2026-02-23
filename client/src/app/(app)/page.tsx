@@ -1,16 +1,38 @@
+'use client'
+
 import { Stat } from '@/app/stat'
 import { Avatar } from '@/components/avatar'
 import { Heading, Subheading } from '@/components/heading'
 import { Select } from '@/components/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table'
-import { getRecentOrders } from '@/data'
+import { useUser } from '@/contexts/user-context'
 
-export default async function Home() {
-  let orders = await getRecentOrders()
+interface Order {
+  id: string
+  date: string
+  customer: { name: string }
+  event: { name: string; thumbUrl: string }
+  amount: { usd: string }
+  url: string
+}
+
+export default function Home() {
+  const { user } = useUser()
+  const userName = user ? `${user.firstName} ${user.lastName}` : 'User'
 
   return (
     <>
-      <Heading>Good afternoon, Erica</Heading>
+      <Heading>Good afternoon, {userName}</Heading>
+      {user && (
+        <div className="mt-4 p-4 bg-zinc-100 dark:bg-zinc-800 rounded-lg">
+          <div className="flex flex-col gap-2">
+            <p className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Logged in as:</p>
+            <p className="text-base font-semibold">{user.firstName} {user.lastName}</p>
+            <p className="text-sm text-zinc-500">{user.email}</p>
+            <p className="text-sm text-zinc-500">{user.phoneNumber}</p>
+          </div>
+        </div>
+      )}
       <div className="mt-8 flex items-end justify-between">
         <Subheading>Overview</Subheading>
         <div>
@@ -40,20 +62,11 @@ export default async function Home() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {orders.map((order) => (
-            <TableRow key={order.id} href={order.url} title={`Order #${order.id}`}>
-              <TableCell>{order.id}</TableCell>
-              <TableCell className="text-zinc-500">{order.date}</TableCell>
-              <TableCell>{order.customer.name}</TableCell>
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  <Avatar src={order.event.thumbUrl} className="size-6" />
-                  <span>{order.event.name}</span>
-                </div>
-              </TableCell>
-              <TableCell className="text-right">US{order.amount.usd}</TableCell>
-            </TableRow>
-          ))}
+          <TableRow>
+            <TableCell colSpan={5} className="text-center text-zinc-500">
+              No orders yet
+            </TableCell>
+          </TableRow>
         </TableBody>
       </Table>
     </>

@@ -42,14 +42,26 @@ import {
   TicketIcon,
   BuildingOfficeIcon,
 } from '@heroicons/react/20/solid'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
+import { removeToken } from '@/utils/auth'
+import { useUser } from '@/contexts/user-context'
 
 function AccountDropdownMenu({ anchor }: { anchor: 'top start' | 'bottom end' }) {
+  const router = useRouter()
+  const { user } = useUser()
+
+  const handleLogout = () => {
+    removeToken()
+    router.replace('/login')
+  }
+
   return (
     <DropdownMenu className="min-w-64" anchor={anchor}>
-      <DropdownItem href="#">
+      <DropdownItem disabled>
         <UserCircleIcon />
-        <DropdownLabel>My account</DropdownLabel>
+        <DropdownLabel>
+          {user ? `${user.firstName} ${user.lastName}` : 'Loading...'}
+        </DropdownLabel>
       </DropdownItem>
       <DropdownDivider />
       <DropdownItem href="#">
@@ -61,7 +73,7 @@ function AccountDropdownMenu({ anchor }: { anchor: 'top start' | 'bottom end' })
         <DropdownLabel>Share feedback</DropdownLabel>
       </DropdownItem>
       <DropdownDivider />
-      <DropdownItem href="/login">
+      <DropdownItem onClick={handleLogout}>
         <ArrowRightStartOnRectangleIcon />
         <DropdownLabel>Sign out</DropdownLabel>
       </DropdownItem>
@@ -77,6 +89,8 @@ export function ApplicationLayout({
   children: React.ReactNode
 }) {
   let pathname = usePathname()
+  const { user } = useUser()
+  const userInitials = user ? `${user.firstName.charAt(0)}${user.lastName.charAt(0)}`.toUpperCase() : '?'
 
   return (
     <SidebarLayout
@@ -86,7 +100,7 @@ export function ApplicationLayout({
           <NavbarSection>
             <Dropdown>
               <DropdownButton as={NavbarItem}>
-                <Avatar src="/users/erica.jpg" square />
+                <Avatar initials={userInitials} square />
               </DropdownButton>
               <AccountDropdownMenu anchor="bottom end" />
             </Dropdown>
@@ -176,11 +190,13 @@ export function ApplicationLayout({
             <Dropdown>
               <DropdownButton as={SidebarItem}>
                 <span className="flex min-w-0 items-center gap-3">
-                  <Avatar src="/users/erica.jpg" className="size-10" square alt="" />
+                  <Avatar initials={userInitials} className="size-10" square alt="" />
                   <span className="min-w-0">
-                    <span className="block truncate text-sm/5 font-medium text-zinc-950 dark:text-white">Erica</span>
+                    <span className="block truncate text-sm/5 font-medium text-zinc-950 dark:text-white">
+                      {user ? `${user.firstName} ${user.lastName}` : 'Loading...'}
+                    </span>
                     <span className="block truncate text-xs/5 font-normal text-zinc-500 dark:text-zinc-400">
-                      erica@example.com
+                      {user ? user.email : 'loading...'}
                     </span>
                   </span>
                 </span>
