@@ -5,6 +5,7 @@ import { Button } from '@/components/button'
 import { Heading } from '@/components/heading'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table'
 import { Dialog } from '@/components/dialog'
+import { Pagination, PaginationNext, PaginationPrevious, PaginationList, PaginationPage } from '@/components/pagination'
 import LoadRow from './LoadRow'
 import LoadForm from './LoadForm'
 import type { Load } from '../types'
@@ -28,6 +29,10 @@ interface LoadsProps {
   onUpdateLoad: (id: string, data: any) => Promise<void>
   onDeleteClick: (loadId: string) => void
   isSubmitting: boolean
+  total: number
+  currentPage: number
+  totalPages: number
+  onPageChange: (page: number) => void
 }
 
 export default function Loads({
@@ -39,6 +44,10 @@ export default function Loads({
   onUpdateLoad,
   onDeleteClick,
   isSubmitting,
+  total,
+  currentPage,
+  totalPages,
+  onPageChange,
 }: LoadsProps) {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingLoad, setEditingLoad] = useState<Load | undefined>(undefined)
@@ -71,14 +80,14 @@ export default function Loads({
     <>
       {/* Action Bar */}
       <div className="flex items-end justify-between gap-4">
-        <Heading>Loads ({loads.length})</Heading>
+        <Heading>Loads ({total})</Heading>
         <Button onClick={handleAddClick} className="cursor-pointer">
           Create load
         </Button>
       </div>
 
       {/* Table */}
-      <Table className="mt-8 [--gutter:--spacing(6)] lg:[--gutter:--spacing(10)]">
+      <Table className="mt-8 [--gutter:--spacing(3)] lg:[--gutter:--spacing(4)]" dense>
         <TableHead>
           <TableRow>
             <TableHeader>Reference</TableHeader>
@@ -128,6 +137,43 @@ export default function Loads({
           onCancel={handleFormCancel}
         />
       </Dialog>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-8 flex justify-center">
+          <Pagination>
+            <PaginationPrevious
+              href={null}
+              onClick={(e) => {
+                e?.preventDefault()
+                if (currentPage > 1) onPageChange(currentPage - 1)
+              }}
+            />
+            <PaginationList>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <PaginationPage
+                  key={page}
+                  href="#"
+                  current={page === currentPage}
+                  onClick={(e) => {
+                    e?.preventDefault()
+                    onPageChange(page)
+                  }}
+                >
+                  {page}
+                </PaginationPage>
+              ))}
+            </PaginationList>
+            <PaginationNext
+              href={null}
+              onClick={(e) => {
+                e?.preventDefault()
+                if (currentPage < totalPages) onPageChange(currentPage + 1)
+              }}
+            />
+          </Pagination>
+        </div>
+      )}
     </>
   )
 }

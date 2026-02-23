@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Alert from '@/utils/alert'
 import { useGetBrokers } from './useBrokers'
 import { useBrokerService } from './useBrokerService'
@@ -9,15 +10,35 @@ import { Dialog } from '@/components/dialog'
 import { Button } from '@/components/button'
 import { Heading } from '@/components/heading'
 
+const ITEMS_PER_PAGE = 20
+
 export default function BrokersContainer() {
-  const { data: brokersData, loading: brokersLoading, refetch } = useGetBrokers()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [currentPage, setCurrentPage] = useState(1)
+
+  useEffect(() => {
+    const pageParam = searchParams.get('page')
+    if (pageParam) {
+      setCurrentPage(Math.max(1, parseInt(pageParam, 10)))
+    }
+  }, [])
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage)
+    router.push(`?page=${newPage}`)
+  }
+
+  const { data: brokersData, loading: brokersLoading, refetch } = useGetBrokers(currentPage, ITEMS_PER_PAGE)
   const { createBroker, updateBroker, deleteBroker, loading: isSubmitting } = useBrokerService()
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [deletingBrokerId, setDeletingBrokerId] = useState<string | null>(null)
   const [isDeletingBroker, setIsDeletingBroker] = useState(false)
 
-  const brokers = (brokersData as any)?.brokers || []
+  const brokersList = (brokersData as any)?.brokers?.brokers || []
+  const total = (brokersData as any)?.brokers?.total || 0
+  const totalPages = Math.ceil(total / ITEMS_PER_PAGE)
 
   const handleBrokerMutation = async (
     mutationFn: (data: any) => Promise<any>,
@@ -80,12 +101,16 @@ export default function BrokersContainer() {
   return (
     <>
       <Brokers
-        brokers={brokers}
+        brokers={brokersList}
+        total={total}
+        currentPage={currentPage}
+        totalPages={totalPages}
         isLoading={brokersLoading}
         onAddBroker={handleAddBroker}
         onUpdateBroker={handleUpdateBroker}
         onDeleteClick={handleDeleteClick}
         isSubmitting={isSubmitting}
+        onPageChange={handlePageChange}
       />
 
       <Dialog open={isDeleteDialogOpen} onClose={() => !isDeletingBroker && setIsDeleteDialogOpen(false)}>

@@ -1,13 +1,16 @@
 import { gql } from '@apollo/client'
 
 export const GET_BROKERS = gql`
-  query Brokers {
-    brokers {
-      id
-      logisticName
-      mc
-      brokerName
-      phoneNumber
+  query Brokers($page: Int, $perPage: Int) {
+    brokers(page: $page, perPage: $perPage) {
+      total
+      brokers {
+        id
+        logisticName
+        mc
+        brokerName
+        phoneNumber
+      }
     }
   }
 `

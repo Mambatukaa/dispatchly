@@ -67,32 +67,60 @@ const DateScalar = new GraphQLScalarType({
 export const resolvers = {
   Date: DateScalar,
   Query: {
-    drivers: async () => {
-      return await getDrivers();
+    drivers: async (
+      _: any,
+      { page, perPage }: { page?: number; perPage?: number }
+    ) => {
+      const pageValue = page || 1;
+      const perPageValue = perPage || 20;
+      const skip = (pageValue - 1) * perPageValue;
+      return await getDrivers(skip, perPageValue);
     },
 
     driver: async (_: any, { id }: { id: string }) => {
       return await getDriverById(id);
     },
 
-    brokers: async () => {
-      return await getBrokers();
+    brokers: async (
+      _: any,
+      { page, perPage }: { page?: number; perPage?: number }
+    ) => {
+      const pageValue = page || 1;
+      const perPageValue = perPage || 20;
+      const skip = (pageValue - 1) * perPageValue;
+      return await getBrokers(skip, perPageValue);
     },
 
     broker: async (_: any, { id }: { id: string }) => {
       return await getBrokerById(id);
     },
 
-    loads: async () => {
-      return await getLoads();
+    loads: async (
+      _: any,
+      { page, perPage }: { page?: number; perPage?: number }
+    ) => {
+      const pageValue = page || 1;
+      const perPageValue = perPage || 20;
+      const skip = (pageValue - 1) * perPageValue;
+      return await getLoads(skip, perPageValue);
     },
 
     load: async (_: any, { id }: { id: string }) => {
       return await getLoadById(id);
     },
 
-    driverLoads: async (_: any, { driverId }: { driverId: string }) => {
-      return await getLoadsByDriver(driverId);
+    driverLoads: async (
+      _: any,
+      {
+        driverId,
+        page,
+        perPage
+      }: { driverId: string; page?: number; perPage?: number }
+    ) => {
+      const pageValue = page || 1;
+      const perPageValue = perPage || 20;
+      const skip = (pageValue - 1) * perPageValue;
+      return await getLoadsByDriver(driverId, skip, perPageValue);
     }
   },
 
@@ -136,7 +164,8 @@ export const resolvers = {
 
   Driver: {
     loads: async (driver: Driver) => {
-      return await getLoadsByDriver(driver.id);
+      const result = await getLoadsByDriver(driver.id, 0, 100);
+      return result.loads;
     }
   },
 

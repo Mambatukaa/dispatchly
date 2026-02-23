@@ -5,6 +5,7 @@ import { Button } from '@/components/button'
 import { Heading } from '@/components/heading'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table'
 import { Dialog } from '@/components/dialog'
+import { Pagination, PaginationNext, PaginationPrevious, PaginationList, PaginationPage } from '@/components/pagination'
 import BrokerRow from './BrokerRow'
 import BrokerForm from './BrokerForm'
 
@@ -18,20 +19,28 @@ interface Broker {
 
 interface BrokersProps {
   brokers: Broker[]
+  total: number
+  currentPage: number
+  totalPages: number
   isLoading: boolean
   onAddBroker: (data: any) => Promise<void>
   onUpdateBroker: (id: string, data: any) => Promise<void>
   onDeleteClick: (brokerId: string) => void
   isSubmitting: boolean
+  onPageChange: (page: number) => void
 }
 
 export default function Brokers({
   brokers,
+  total,
+  currentPage,
+  totalPages,
   isLoading,
   onAddBroker,
   onUpdateBroker,
   onDeleteClick,
   isSubmitting,
+  onPageChange,
 }: BrokersProps) {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [editingBroker, setEditingBroker] = useState<Broker | undefined>(undefined)
@@ -64,14 +73,14 @@ export default function Brokers({
     <>
       {/* Action Bar */}
       <div className="flex items-end justify-between gap-4">
-        <Heading>Brokers ({brokers.length})</Heading>
+        <Heading>Brokers ({total})</Heading>
         <Button onClick={handleAddClick} className="cursor-pointer">
           Create broker
         </Button>
       </div>
 
       {/* Table */}
-      <Table className="mt-8 [--gutter:--spacing(6)] lg:[--gutter:--spacing(10)]">
+      <Table className="mt-8 [--gutter:--spacing(3)] lg:[--gutter:--spacing(4)]" dense>
         <TableHead>
           <TableRow>
             <TableHeader>Logistic Name</TableHeader>
@@ -116,6 +125,43 @@ export default function Brokers({
           onCancel={handleFormCancel}
         />
       </Dialog>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="mt-8 flex justify-center">
+          <Pagination>
+            <PaginationPrevious
+              href={null}
+              onClick={(e) => {
+                e?.preventDefault()
+                if (currentPage > 1) onPageChange(currentPage - 1)
+              }}
+            />
+            <PaginationList>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <PaginationPage
+                  key={page}
+                  href="#"
+                  current={page === currentPage}
+                  onClick={(e) => {
+                    e?.preventDefault()
+                    onPageChange(page)
+                  }}
+                >
+                  {page}
+                </PaginationPage>
+              ))}
+            </PaginationList>
+            <PaginationNext
+              href={null}
+              onClick={(e) => {
+                e?.preventDefault()
+                if (currentPage < totalPages) onPageChange(currentPage + 1)
+              }}
+            />
+          </Pagination>
+        </div>
+      )}
     </>
   )
 }

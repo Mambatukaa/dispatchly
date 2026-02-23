@@ -3,12 +3,22 @@ import { Broker, BrokerInput } from '../models/Broker';
 import { generateObjectId } from '../utils/objectId';
 import { DatabaseError, NotFoundError } from '../utils/errors';
 
-export async function getBrokers(): Promise<Broker[]> {
+export async function getBrokers(
+  skip: number = 0,
+  limit: number = 20
+): Promise<{ brokers: Broker[]; total: number }> {
   try {
+    const countResult = await pool.query('SELECT COUNT(*) FROM brokers');
+    const total = parseInt(countResult.rows[0].count, 10);
+
     const result = await pool.query(
-      'SELECT * FROM brokers ORDER BY created_at DESC'
+      'SELECT * FROM brokers ORDER BY created_at DESC LIMIT $1 OFFSET $2',
+      [limit, skip]
     );
-    return result.rows.map(rowToBroker);
+    return {
+      brokers: result.rows.map(rowToBroker),
+      total
+    };
   } catch (err) {
     throw new DatabaseError('Failed to fetch brokers');
   }

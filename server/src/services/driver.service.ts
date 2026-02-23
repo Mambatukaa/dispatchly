@@ -3,12 +3,22 @@ import { Driver, DriverInput } from '../models/Driver';
 import { generateObjectId } from '../utils/objectId';
 import { DatabaseError, NotFoundError } from '../utils/errors';
 
-export async function getDrivers(): Promise<Driver[]> {
+export async function getDrivers(
+  skip: number = 0,
+  limit: number = 20
+): Promise<{ drivers: Driver[]; total: number }> {
   try {
+    const countResult = await pool.query('SELECT COUNT(*) FROM drivers');
+    const total = parseInt(countResult.rows[0].count, 10);
+
     const result = await pool.query(
-      'SELECT * FROM drivers ORDER BY created_at DESC'
+      'SELECT * FROM drivers ORDER BY created_at DESC LIMIT $1 OFFSET $2',
+      [limit, skip]
     );
-    return result.rows.map(rowToDriver);
+    return {
+      drivers: result.rows.map(rowToDriver),
+      total
+    };
   } catch (err) {
     throw new DatabaseError('Failed to fetch drivers');
   }

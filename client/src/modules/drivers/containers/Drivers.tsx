@@ -1,16 +1,37 @@
 'use client'
 
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Drivers } from '../components'
 import { useGetDrivers } from './useDrivers'
 import { useDriverService } from './useDriverService'
 import Alert from '@/utils/alert'
 
+const ITEMS_PER_PAGE = 20
+
 export default function DriversContainer() {
-  const { data, loading, refetch } = useGetDrivers()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [currentPage, setCurrentPage] = useState(1)
+
+  useEffect(() => {
+    const pageParam = searchParams.get('page')
+    if (pageParam) {
+      setCurrentPage(Math.max(1, parseInt(pageParam, 10)))
+    }
+  }, [])
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage)
+    router.push(`?page=${newPage}`)
+  }
+
+  const { data, loading, refetch } = useGetDrivers(currentPage, ITEMS_PER_PAGE)
   const { createDriver, updateDriver, deleteDriver } = useDriverService()
 
-  const drivers = (data as any)?.drivers || []
+  const drivers = (data as any)?.drivers?.drivers || []
+  const total = (data as any)?.drivers?.total || 0
+  const totalPages = Math.ceil(total / ITEMS_PER_PAGE)
 
   const handleDriverMutation = async (
     mutationFn: (data: any) => Promise<any>,
@@ -83,6 +104,10 @@ export default function DriversContainer() {
       remove={handleDeleteDriver}
       onAddDriver={handleAddDriver}
       onEditDriver={handleEditDriver}
+      total={total}
+      currentPage={currentPage}
+      totalPages={totalPages}
+      onPageChange={handlePageChange}
     />
   )
 }

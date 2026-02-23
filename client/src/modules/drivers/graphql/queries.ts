@@ -1,13 +1,16 @@
 import { gql } from '@apollo/client'
 
 export const GET_DRIVERS = gql`
-  query Drivers {
-    drivers {
-      id
-      name
-      email
-      phone
-      status
+  query Drivers($page: Int, $perPage: Int) {
+    drivers(page: $page, perPage: $perPage) {
+      total
+      drivers {
+        id
+        name
+        email
+        phone
+        status
+      }
     }
   }
 `

@@ -1,6 +1,7 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Alert from '@/utils/alert'
 import { useGetLoads } from './useLoads'
 import { useLoadService } from './useLoadService'
@@ -12,19 +13,39 @@ import { Button } from '@/components/button'
 import { Heading } from '@/components/heading'
 import LoadForm from '@/modules/loads/components/LoadForm'
 
+const ITEMS_PER_PAGE = 20
+
 export default function LoadsContainer() {
-  const { data: loadsData, loading: loadsLoading, refetch } = useGetLoads()
-  const { data: driversData } = useGetDrivers()
-  const { data: brokersData } = useGetBrokers()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [currentPage, setCurrentPage] = useState(1)
+
+  useEffect(() => {
+    const pageParam = searchParams.get('page')
+    if (pageParam) {
+      setCurrentPage(Math.max(1, parseInt(pageParam, 10)))
+    }
+  }, [])
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage)
+    router.push(`?page=${newPage}`)
+  }
+
+  const { data: loadsData, loading: loadsLoading, refetch } = useGetLoads(currentPage, ITEMS_PER_PAGE)
+  const { data: driversData } = useGetDrivers(1, 100)
+  const { data: brokersData } = useGetBrokers(1, 100)
   const { createLoad, updateLoad, deleteLoad, loading: isSubmitting } = useLoadService()
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [deletingLoadId, setDeletingLoadId] = useState<string | null>(null)
   const [isDeletingLoad, setIsDeletingLoad] = useState(false)
 
-  const loads = (loadsData as any)?.loads || []
-  const drivers = (driversData as any)?.drivers || []
-  const brokers = (brokersData as any)?.brokers || []
+  const loads = (loadsData as any)?.loads?.loads || []
+  const total = (loadsData as any)?.loads?.total || 0
+  const totalPages = Math.ceil(total / ITEMS_PER_PAGE)
+  const drivers = (driversData as any)?.drivers?.drivers || []
+  const brokers = (brokersData as any)?.brokers?.brokers || []
 
   const handleLoadMutation = async (
     mutationFn: (data: any) => Promise<any>,
@@ -95,6 +116,10 @@ export default function LoadsContainer() {
         onUpdateLoad={handleUpdateLoad}
         onDeleteClick={handleDeleteClick}
         isSubmitting={isSubmitting}
+        total={total}
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
       />
 
       <Dialog open={isDeleteDialogOpen} onClose={() => !isDeletingLoad && setIsDeleteDialogOpen(false)}>

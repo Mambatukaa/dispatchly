@@ -1,19 +1,22 @@
 import { gql } from '@apollo/client'
 
 export const GET_LOADS = gql`
-  query Loads {
-    loads {
-      id
-      ref
-      status
-      pickup
-      dropoff
-      driverId
-      brokerId
-      pickupDate
-      dropoffDate
-      rate
-      notes
+  query Loads($page: Int, $perPage: Int) {
+    loads(page: $page, perPage: $perPage) {
+      total
+      loads {
+        id
+        ref
+        status
+        pickup
+        dropoff
+        driverId
+        brokerId
+        pickupDate
+        dropoffDate
+        rate
+        notes
+      }
     }
   }
 `

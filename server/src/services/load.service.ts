@@ -3,12 +3,22 @@ import { Load, LoadInput } from '../models/Load';
 import { generateObjectId } from '../utils/objectId';
 import { DatabaseError, NotFoundError } from '../utils/errors';
 
-export async function getLoads(): Promise<Load[]> {
+export async function getLoads(
+  skip: number = 0,
+  limit: number = 20
+): Promise<{ loads: Load[]; total: number }> {
   try {
+    const countResult = await pool.query('SELECT COUNT(*) FROM loads');
+    const total = parseInt(countResult.rows[0].count, 10);
+
     const result = await pool.query(
-      'SELECT * FROM loads ORDER BY created_at DESC'
+      'SELECT * FROM loads ORDER BY created_at DESC LIMIT $1 OFFSET $2',
+      [limit, skip]
     );
-    return result.rows.map(rowToLoad);
+    return {
+      loads: result.rows.map(rowToLoad),
+      total
+    };
   } catch (err) {
     console.log(err);
     throw new DatabaseError('Failed to fetch loads');
@@ -25,13 +35,26 @@ export async function getLoadById(id: string): Promise<Load | null> {
   }
 }
 
-export async function getLoadsByDriver(driverId: string): Promise<Load[]> {
+export async function getLoadsByDriver(
+  driverId: string,
+  skip: number = 0,
+  limit: number = 20
+): Promise<{ loads: Load[]; total: number }> {
   try {
-    const result = await pool.query(
-      'SELECT * FROM loads WHERE driver_id = $1 ORDER BY created_at DESC',
+    const countResult = await pool.query(
+      'SELECT COUNT(*) FROM loads WHERE driver_id = $1',
       [driverId]
     );
-    return result.rows.map(rowToLoad);
+    const total = parseInt(countResult.rows[0].count, 10);
+
+    const result = await pool.query(
+      'SELECT * FROM loads WHERE driver_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+      [driverId, limit, skip]
+    );
+    return {
+      loads: result.rows.map(rowToLoad),
+      total
+    };
   } catch (err) {
     throw new DatabaseError('Failed to fetch driver loads');
   }

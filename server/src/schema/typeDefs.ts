@@ -29,6 +29,21 @@ export const typeDefs = gql`
     createdAt: String!
   }
 
+  type PaginatedBrokers {
+    brokers: [Broker!]!
+    total: Int!
+  }
+
+  type PaginatedDrivers {
+    drivers: [Driver!]!
+    total: Int!
+  }
+
+  type PaginatedLoads {
+    loads: [Load!]!
+    total: Int!
+  }
+
   enum LoadStatus {
     NEW
     BOOKED
@@ -85,13 +100,13 @@ export const typeDefs = gql`
   }
 
   type Query {
-    drivers: [Driver!]!
+    drivers(page: Int, perPage: Int): PaginatedDrivers!
     driver(id: ID!): Driver
-    brokers: [Broker!]!
+    brokers(page: Int, perPage: Int): PaginatedBrokers!
     broker(id: ID!): Broker
-    loads: [Load!]!
+    loads(page: Int, perPage: Int): PaginatedLoads!
     load(id: ID!): Load
-    driverLoads(driverId: ID!): [Load!]!
+    driverLoads(driverId: ID!, page: Int, perPage: Int): PaginatedLoads!
   }
 
   type Mutation {
