@@ -1,20 +1,10 @@
 'use client'
 
 import { Stat } from '@/app/stat'
-import { Avatar } from '@/components/avatar'
 import { Heading, Subheading } from '@/components/heading'
 import { Select } from '@/components/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/table'
 import { useUser } from '@/contexts/user-context'
-
-interface Order {
-  id: string
-  date: string
-  customer: { name: string }
-  event: { name: string; thumbUrl: string }
-  amount: { usd: string }
-  url: string
-}
 
 export default function Home() {
   const { user } = useUser()
