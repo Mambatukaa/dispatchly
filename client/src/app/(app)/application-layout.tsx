@@ -48,10 +48,11 @@ import { useUser } from '@/contexts/user-context'
 
 function AccountDropdownMenu({ anchor }: { anchor: 'top start' | 'bottom end' }) {
   const router = useRouter()
-  const { user } = useUser()
+  const { user, setUser } = useUser()
 
   const handleLogout = () => {
     removeToken()
+    setUser(null)
     router.replace('/login')
   }
 
