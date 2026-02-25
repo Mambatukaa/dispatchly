@@ -21,8 +21,7 @@ async function startServer() {
     // CORS configuration
     app.use(
       cors({
-        origin: config.corsOrigin,
-        credentials: true,
+        origin: '*',
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization']
       })
