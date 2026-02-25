@@ -9,6 +9,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const { user, isLoading } = useUser()
   const [isMounted, setIsMounted] = useState(false)
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
 
   useEffect(() => {
     setIsMounted(true)
@@ -30,10 +31,12 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       router.push('/')
       return
     }
+
+    setIsCheckingAuth(false)
   }, [pathname, router, isMounted, user, isLoading])
 
-  // Don't render anything while checking auth or loading user
-  if (!isMounted || (isLoading && !user)) {
+  // Show nothing while checking auth or loading user - prevents flash
+  if (!isMounted || isLoading || isCheckingAuth) {
     return null
   }
 
