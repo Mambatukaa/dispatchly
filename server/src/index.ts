@@ -10,27 +10,39 @@ import { resolvers } from './schema/resolvers';
 const app: Express = express();
 const PORT = config.port;
 
+const corsOptions = {
+  origin: (
+    origin: string | undefined,
+    callback: (err: Error | null, allow?: boolean) => void
+  ) => {
+    callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Content-Type'],
+  optionsSuccessStatus: 200
+};
+
 async function startServer() {
   try {
     // Initialize database
     await initializeDatabase();
 
+    // CORS must be first
+    app.use(cors(corsOptions));
+
+    // Handle preflight requests
+    app.options('*', cors(corsOptions));
+
     // Middleware
     app.use(express.json());
 
-    // CORS configuration
-    app.use(
-      cors({
-        origin: '*',
-        methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization']
-      })
-    );
-
-    // Create Apollo Server
+    // Create Apollo Server with CORS
     const server = new ApolloServer({
       typeDefs,
-      resolvers
+      resolvers,
+      csrfPrevention: false
     });
 
     // Start Apollo Server
@@ -39,6 +51,8 @@ async function startServer() {
     // Apply Apollo middleware with context
     app.use(
       '/graphql',
+      cors(corsOptions),
+      express.json(),
       expressMiddleware(server, {
         context: async ({ req }) => ({
           req
@@ -46,7 +60,6 @@ async function startServer() {
       })
     );
 
-    // Health check endpoint
     app.get('/health', (req: Request, res: Response) => {
       res.json({ status: 'ok' });
     });
